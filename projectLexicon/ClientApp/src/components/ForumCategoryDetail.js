@@ -10,7 +10,8 @@ import { apiPost, apiGet } from '../api/api'
 import "./root.css";
 
 
-export function FormCategoryDetail({ popupId, handleClose }) {
+export function FormCategoryDetail(props) {
+  const { popupId, handleClose } = props
   const [orgItem, setOrgItem] = useState({})
   const [formItem, setFormItem] = useState({});
 
@@ -26,16 +27,21 @@ export function FormCategoryDetail({ popupId, handleClose }) {
 
   async function handleSave() {
     if (popupId === 0) {
-      await apiPost('forumcategory/Add', { name: formItem.name })
+      const newItem = await apiPost('forumcategory/Add', { name: formItem.name })
+      newItem.result && props.onAdd(newItem.result)
+
     } else {
       await apiPost('forumcategory/Update', { id: popupId, name: formItem.name })
+      const changedItem = await apiPost('forumcategory/Update', { id: popupId, name: formItem.name })
+      changedItem.result && props.onChange(changedItem.result)
+
     }
     handleClose();
   }
 
   async function handleDelete() {
-    // await deleteItem(orgItem.id);
-    await apiPost('forumcategory/Delete', { id: popupId })
+    const result = await apiPost('forumcategory/Delete', { id: popupId })
+    result.isSuccess && props.onDelete(popupId);
     handleClose();
   }
 

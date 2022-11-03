@@ -19,20 +19,24 @@ export class ForumThread extends Component {
       popupId: 0,
       categoryName: '',
       forumCategoryId: props.forumCategoryId,
-      onClose: props.onClose
+      onClose: props.onClose,
+      currentThread: null
     };
     this.showDetail = this.showDetail.bind(this);
     this.handleClose = this.handleClose.bind(this);
     this.showDetail = this.showDetail.bind(this);
     this.showAdd = this.showAdd.bind(this);
+    this.handleAddThread = this.handleAddThread.bind(this);
+    this.handleDeleteThread = this.handleDeleteThread.bind(this);
+    this.handleEditThread = this.handleEditThread.bind(this);
   }
 
   componentDidMount() {
     this.populateData(this.state.forumCategoryId);
   }
 
-  showDetail = (id) => {
-    this.setState({ showPopup: true, popupId: id });
+  showDetail = (thread) => {
+    this.setState({ showPopup: true, popupId: thread.id, currentThread: thread });
   }
 
   handleClose() {
@@ -40,7 +44,31 @@ export class ForumThread extends Component {
   }
 
   showAdd() {
-    this.setState({ showPopup: true, popupId: 0 });
+    this.setState({ showPopup: true, popupId: 0, currentThread: null, forumCategoryId: this.state.forumCategoryId });
+  }
+
+  handleAddThread(newThread) {
+    let rows = [...this.state.rows];
+    rows.push(newThread);
+    this.setState({rows})
+  }
+
+  handleDeleteThread(threadId) {
+    let rows = [...this.state.rows];
+    const index = rows.findIndex(t => t.id == threadId);
+    if (index > -1) {
+      rows.splice(index, 1);
+    }
+    this.setState({ rows })
+  }
+
+  handleEditThread(changedThread) {
+    let rows = [...this.state.rows];
+    const index = rows.findIndex(t => t.id == changedThread.id);
+    if (index > -1) {
+      rows[index] = { ...rows[index] , ...changedThread}
+    }
+    this.setState({ rows })
   }
 
   render() {
@@ -49,7 +77,14 @@ export class ForumThread extends Component {
         {this.state.showPopup &&
           <div className="popupBase">
             <div className="popupForm">
-              <FormThreadDetail handleClose={this.handleClose} popupId={this.state.popupId} />
+              <FormThreadDetail
+                onAdd={this.handleAddThread}
+                onChange={this.handleEditThread}
+                onDelete={this.handleDeleteThread }
+                handleClose={this.handleClose}
+                popupId={this.state.popupId}
+                thread={this.state.currentThread}
+                forumCategoryId={this.state.forumCategoryId} />
             </div>
           </div>
         }
@@ -68,8 +103,8 @@ export class ForumThread extends Component {
               </tr>
             </thead>
             <tbody>
-              {this.state.rows.map(x =>
-                <tr key={x.id} onClick={() => this.showDetail(x.id)}>
+              {this.state.rows.filter(x => x.forumCategoryId == this.props.forumCategoryId).map(x =>
+                <tr key={x.id} onClick={() => this.showDetail(x)}>
                   <td>{x.id}</td>
                   <td>{x.name}</td>
                 </tr>

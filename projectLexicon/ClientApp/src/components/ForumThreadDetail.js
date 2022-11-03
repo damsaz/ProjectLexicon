@@ -10,32 +10,37 @@ import { apiPost, apiGet } from '../api/api'
 import "./root.css";
 
 
-export function FormThreadDetail({ popupId, handleClose, forumCategoryId }) {
-  const [orgItem, setOrgItem] = useState({ forumCategoryId: forumCategoryId  })
+export function FormThreadDetail(props) {
+  const { popupId, handleClose, forumCategoryId } = props
+  const [orgItem, setOrgItem] = useState({ forumCategoryId: forumCategoryId })
   const [formItem, setFormItem] = useState({});
 
   useEffect(() => {
     async function fetchData() {
       let data = await apiGet('forumthread/Item', { id: popupId })
       // data = { result: { id: 0, name: "" } };
-      setOrgItem({ ...forumCategoryId, ...data.result });
-      setFormItem({ ...forumCategoryId, ...data.result });
+      if (data.result.forumCategoryId === 0) data.result.forumCategoryId = forumCategoryId;
+      setOrgItem({ ...data.result });
+      setFormItem({ ...data.result });
     }
     fetchData();
   }, []);
 
   async function handleSave() {
     if (popupId === 0) {
-      await apiPost('forumthread/Add', { name: formItem.name, forumCategoryId: orgItem.forumCategoryId  })
+      const newThread = await apiPost('forumthread/Add', { name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
+      newThread.result && props.onAdd(newThread.result)
     } else {
-      await apiPost('forumthread/Update', { id: popupId, name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
+      const changedThread = await apiPost('forumthread/Update', { id: popupId, name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
+      changedThread.result && props.onChange(changedThread.result)
     }
     handleClose();
   }
 
   async function handleDelete() {
     // await deleteItem(orgItem.id);
-    await apiPost('forumthread/Delete', { id: popupId })
+    const result = await apiPost('forumthread/Delete', { id: popupId })
+    result.isSuccess && props.onDelete(popupId);
     handleClose();
   }
 

@@ -62,7 +62,7 @@ namespace ProjectLexicon.Controllers
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
+            if (!UserId.HasRole(User, Role.Admin, Role.User)) {
                 return new Response(101, "No permission");
             }
 

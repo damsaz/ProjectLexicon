@@ -19,6 +19,11 @@ export class ForumCategory extends Component {
     this.showAdd = this.showAdd.bind(this);
     this.showThreads = this.showThreads.bind(this);
     this.handleCloseThreads = this.handleCloseThreads.bind(this);
+
+    this.handleAddItem = this.handleAddItem.bind(this);
+    this.handleDeleteItem = this.handleDeleteItem.bind(this);
+    this.handleEditItem = this.handleEditItem.bind(this);
+
   }
 
   // navigate = useNavigate();
@@ -49,6 +54,31 @@ export class ForumCategory extends Component {
     this.setState({ showThreadsPopup: false, categoryPopupId: 0, forumCategoryId: 0 });
   }
 
+  handleAddItem(newItem) {
+    let rows = [...this.state.rows];
+    rows.push(newItem);
+    this.setState({ rows })
+  }
+
+  handleDeleteItem(itemId) {
+    let rows = [...this.state.rows];
+    const index = rows.findIndex(t => t.id == itemId);
+    if (index > -1) {
+      rows.splice(index, 1);
+    }
+    this.setState({ rows })
+  }
+
+  handleEditItem(changedItem) {
+    let rows = [...this.state.rows];
+    const index = rows.findIndex(t => t.id == changedItem.id);
+    if (index > -1) {
+      rows[index] = { ...rows[index], ...changedItem }
+    }
+    this.setState({ rows })
+  }
+
+
   render() {
     // 
     return (
@@ -56,7 +86,13 @@ export class ForumCategory extends Component {
         {this.state.showPopup &&
           <div className="popupBase">
             <div className="popupForm">
-              <FormCategoryDetail handleClose={this.handleClose} popupId={this.state.popupId} />
+              <FormCategoryDetail
+                handleClose={this.handleClose}
+                popupId={this.state.popupId}
+                onAdd={this.handleAddItem}
+                onChange={this.handleEditItem}
+                onDelete={this.handleDeleteItem}
+              />
             </div>
           </div>
         }
