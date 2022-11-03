@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
 using Duende.IdentityServer.Extensions;
+using ProjectLexicon.Models.ForumThreads;
 
 namespace ProjectLexicon.Controllers
 {
@@ -58,7 +59,8 @@ namespace ProjectLexicon.Controllers
         public Response GetItem(int id)
         {
             ForumCategory? item = DS.FirstOrDefault(item => item.Id == id);
-            if (item == null) {
+            if (item == null)
+            {
                 //return new Response(404, "Category not found");
                 item = new ForumCategory() { Id = 0, Name = "" };
             }
@@ -74,7 +76,8 @@ namespace ProjectLexicon.Controllers
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
+            if (!UserId.HasRole(User, Role.Admin))
+            {
                 return new Response(101, "No permission");
             }
             ForumCategory? item = new() { Name = name, UserId = UserId.Get(User) };
@@ -92,7 +95,8 @@ namespace ProjectLexicon.Controllers
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
+            if (!UserId.HasRole(User, Role.Admin))
+            {
                 return new Response(101, "No permission");
             }
 
@@ -114,16 +118,32 @@ namespace ProjectLexicon.Controllers
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
+            if (!UserId.HasRole(User, Role.Admin))
+            {
                 return new Response(101, "No permission");
             }
 
             ForumCategory? item = DS.FirstOrDefault(item => item.Id == id);
-            if (item == null) {
+            if (item == null)
+            {
                 // We try delete item that does not exist, so basically a success?
                 return new Response();
             }
-            DS.Remove(item);
+
+            var threads = Context.ForumThreads.Where(t => t.ForumCategoryId == id);
+            if (threads != null && threads.Where(t => t.ArchivedDate == null).Any())
+            {
+                return new Response(102, "Can not delete the category because it has associated active threads");
+            }
+
+            if (threads != null && threads.Any())
+            {
+                item.ArchivedDate = DateTime.Now;
+            }
+            else
+            {
+                DS.Remove(item);
+            }
             Context.SaveChanges();
             return new Response();
         }
