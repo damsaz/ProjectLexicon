@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectLexicon.Services;
 
@@ -11,9 +12,10 @@ using ProjectLexicon.Services;
 namespace ProjectLexicon.Services.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221103091013_kurt-7")]
+    partial class kurt7
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -425,9 +427,6 @@ namespace ProjectLexicon.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime?>("ArchivedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
@@ -445,14 +444,14 @@ namespace ProjectLexicon.Services.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2022, 11, 3, 16, 39, 35, 498, DateTimeKind.Local).AddTicks(4350),
+                            Created = new DateTime(2022, 11, 3, 10, 10, 12, 577, DateTimeKind.Local).AddTicks(6751),
                             Name = "Cars",
                             UserId = ""
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2022, 11, 3, 16, 39, 35, 498, DateTimeKind.Local).AddTicks(4404),
+                            Created = new DateTime(2022, 11, 3, 10, 10, 12, 577, DateTimeKind.Local).AddTicks(6832),
                             Name = "Trains",
                             UserId = ""
                         });

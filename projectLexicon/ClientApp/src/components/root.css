@@ -1,0 +1,48 @@
+html {
+  background-color: darkgray;
+}
+#root {
+  background-color: darkgray;
+}
+
+/*
+.container {
+  border-style: solid;
+  border-color: yellow;
+  border-width: 0.2em;
+  border-radius: 0.5em;
+  margin-top: 0.5em;
+  margin-left: 0.5em;
+  padding: 0.5em;
+  background-color: lightgrey;
+}
+*/
+
+form {
+  display: flex;
+  flex-direction: column;
+  font-size: 140%;
+}
+
+p {
+  max-width: 40em;
+}
+
+.inputBox {
+  display: grid;
+  grid-template-columns: auto auto;
+  grid-template-rows: auto auto auto;
+}
+
+.buttonBox {
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+}
+
+.formButton {
+  font-size: 110%;
+  margin-left: 0.5em;
+  padding: 0.2em 0.5em;
+  border-radius: 0.4em;
+}

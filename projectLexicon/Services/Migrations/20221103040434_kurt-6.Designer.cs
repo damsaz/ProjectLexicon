@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjectLexicon.Services;
 
@@ -11,9 +12,10 @@ using ProjectLexicon.Services;
 namespace ProjectLexicon.Services.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    partial class ApplicationDbContextModelSnapshot : ModelSnapshot
+    [Migration("20221103040434_kurt-6")]
+    partial class kurt6
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -161,21 +163,6 @@ namespace ProjectLexicon.Services.Migrations
                     b.HasIndex("SubjectId", "SessionId", "Type");
 
                     b.ToTable("PersistedGrants", (string)null);
-                });
-
-            modelBuilder.Entity("ForumPostTag", b =>
-                {
-                    b.Property<int>("ForumPostsId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("TagsId")
-                        .HasColumnType("int");
-
-                    b.HasKey("ForumPostsId", "TagsId");
-
-                    b.HasIndex("TagsId");
-
-                    b.ToTable("ForumPostTag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -425,9 +412,6 @@ namespace ProjectLexicon.Services.Migrations
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
 
-                    b.Property<DateTime?>("ArchivedDate")
-                        .HasColumnType("datetime2");
-
                     b.Property<DateTime>("Created")
                         .HasColumnType("datetime2");
 
@@ -445,116 +429,17 @@ namespace ProjectLexicon.Services.Migrations
                         new
                         {
                             Id = 1,
-                            Created = new DateTime(2022, 11, 3, 16, 39, 35, 498, DateTimeKind.Local).AddTicks(4350),
+                            Created = new DateTime(2022, 11, 3, 5, 4, 33, 929, DateTimeKind.Local).AddTicks(9040),
                             Name = "Cars",
                             UserId = ""
                         },
                         new
                         {
                             Id = 2,
-                            Created = new DateTime(2022, 11, 3, 16, 39, 35, 498, DateTimeKind.Local).AddTicks(4404),
+                            Created = new DateTime(2022, 11, 3, 5, 4, 33, 929, DateTimeKind.Local).AddTicks(9104),
                             Name = "Trains",
                             UserId = ""
                         });
-                });
-
-            modelBuilder.Entity("ProjectLexicon.Models.ForumPosts.ForumPost", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime?>("ArchivedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int?>("ForumPostId")
-                        .HasColumnType("int");
-
-                    b.Property<int>("ForumThreadId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("QuotedText")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Text")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ForumPosts");
-                });
-
-            modelBuilder.Entity("ProjectLexicon.Models.ForumThreads.ForumThread", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime?>("ArchivedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<int>("ForumCategoryId")
-                        .HasColumnType("int");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("ForumThreads");
-                });
-
-            modelBuilder.Entity("ProjectLexicon.Models.Tags.Tag", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
-
-                    b.Property<DateTime>("CreatedDate")
-                        .HasColumnType("datetime2");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("UserId")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Tags");
-                });
-
-            modelBuilder.Entity("ForumPostTag", b =>
-                {
-                    b.HasOne("ProjectLexicon.Models.ForumPosts.ForumPost", null)
-                        .WithMany()
-                        .HasForeignKey("ForumPostsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
-                    b.HasOne("ProjectLexicon.Models.Tags.Tag", null)
-                        .WithMany()
-                        .HasForeignKey("TagsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
