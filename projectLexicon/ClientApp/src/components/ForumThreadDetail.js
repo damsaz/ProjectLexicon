@@ -8,16 +8,22 @@ import { FormButtons } from "../components/FormButtons";
 import authService from './api-authorization/AuthorizeService'
 import { apiPost, apiGet } from '../api/api'
 import "./root.css";
+import { ErrBase } from './ErrBase'
 
 
 export function FormThreadDetail(props) {
   const { popupId, handleClose, forumCategoryId } = props
   const [orgItem, setOrgItem] = useState({ forumCategoryId: forumCategoryId })
   const [formItem, setFormItem] = useState({});
+  const [errmsg, setErrmsg] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       let data = await apiGet('forumthread/Item', { id: popupId })
+      if (data.errText) {
+        return setErrmsg(data.errText);
+      }
+
       // data = { result: { id: 0, name: "" } };
       if (data.result.forumCategoryId === 0) data.result.forumCategoryId = forumCategoryId;
       setOrgItem({ ...data.result });
@@ -28,11 +34,17 @@ export function FormThreadDetail(props) {
 
   async function handleSave() {
     if (popupId === 0) {
-      const newThread = await apiPost('forumthread/Add', { name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
-      newThread.result && props.onAdd(newThread.result)
+      const data = await apiPost('forumthread/Add', { name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
+      if (data.errText) {
+        return setErrmsg(data.errText);
+      }
+      data.result && props.onAdd(data.result)
     } else {
-      const changedThread = await apiPost('forumthread/Update', { id: popupId, name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
-      changedThread.result && props.onChange(changedThread.result)
+      const data = await apiPost('forumthread/Update', { id: popupId, name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
+      if (data.errText) {
+        return setErrmsg(data.errText);
+      }
+      data.result && props.onChange(data.result)
     }
     handleClose();
   }
@@ -77,6 +89,7 @@ export function FormThreadDetail(props) {
 
   return (
     <div>
+      <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />
       {orgItem && (
         <div>
           <Form method="post" id="thread-form">
