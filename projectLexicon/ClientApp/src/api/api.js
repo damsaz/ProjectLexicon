@@ -1,26 +1,12 @@
 import axios from "axios";
 import authService from '../components/api-authorization/AuthorizeService'
 
-let userId = 99; // Guest
-export function setUserId(newUserId) {
-  userId = newUserId;
-}
-
-
 let nextUid = 1;
 export function getNextUid() {
   return nextUid++;
 }
 
-export const callServer = true;
 const URL_BASE = "api";
-
-const configGetJson = {
-  withCredentials: true,
-  headers: {
-    Accept: "application/json",
-  },
-};
 
 const configPostJson = {
   withCredentials: true,
@@ -30,32 +16,20 @@ const configPostJson = {
   },
 };
 
-const configPostText = {
-  withCredentials: true,
-  headers: {
-    Accept: "application/json",
-    "Content-Type": "text/plain",
-  },
-};
-
 function checkResponse(response) {
   let errText = "";
   if (!response) {
     errText = `API Call status No Response`;
-  }
-  if (!response.status) {
+  } else if (!response.status) {
     errText = `API Call Missing Response status`;
   } else if (response.status < 200 || response.status > 299) {
-    errText = `API Call status ${response.status}`;
-  } else if (!response.data) {
-    errText = `API Call No data returned`;
-  } else if (response.data.errorMessage) {
-    errText = `API Call Error Message: ${response.data.errorMessage}`;
+    if (response.statusText) {
+      errText = `API Call error ${response.status} ${response.statusText}`;
+    } else {
+      errText = `API Call error ${response.status}`;
+    }
   }
-  if (errText) {
-    console.log(errText);
-    throw new Error(errText);
-  }
+  return errText;
 }
 
 export async function apiGet(url, qryParams) {
@@ -64,8 +38,11 @@ export async function apiGet(url, qryParams) {
   const response = await fetch(`${URL_BASE}/${url}?${params}`, {
     headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
   });
-  const data = await response.json();
-  return data;
+  const errText = checkResponse(response)
+  const body = await response.json();
+  if (!body) body = { errText: "No data from server" }
+  body.errText = body.errText || errText;
+  return body;
 }
 
 export async function apiPost(url, qryParams, data) {
@@ -77,52 +54,20 @@ export async function apiPost(url, qryParams, data) {
       ? {}
       : { 'Authorization': `Bearer ${token}` }
   }
+  let response;
   try {
-    const response = await axios.post(`${URL_BASE}/${url}?${params}`, data, config);
-    console.log(response);
-    checkResponse(response);
-    return response.data;
+    response = await axios.post(`${URL_BASE}/${url}?${params}`, data, config);
   } catch (error) {
     console.log(error.message || error);
-    throw error;
+    if (error.response) {
+      response = error.response;
+    } else {
+      return { errText: error.message }
+    }
   }
-}
-
-
-
-
-
-//export async function getJson(url, qryParams, data) {
-//  const token = await authService.getAccessToken();
-//  const params = new URLSearchParams(qryParams);
-//  try {
-//    const response = await fetch(`forumcategory/Item/?Id=${popupId}`, {
-//      headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
-//    });
-
-//    const response = await axios.get(`${URL_BASE}/${url}?${params}`, data, configGetJson);
-//    console.log(response);
-//    checkResponse(response);
-//    return response.data.result;
-//    } catch (error) {
-//    console.log(error.message || error);
-//    throw error;
-//  }
-//}
-
-
-
-
-export async function postJson(url, qryParams, data) {
-  qryParams.currentUser = userId;
-  const params = new URLSearchParams(qryParams);
-  try {
-    const response = await axios.post(`${URL_BASE}/${url}?${params}`, data, configPostJson);
-    console.log(response);
-    checkResponse(response);
-    return response.data.result;
-  } catch (error) {
-    console.log(error.message || error);
-    throw error;
-  }
+  const errText = checkResponse(response)
+  const body = response.data;
+  if (!body) body = { errText: "No data from server" }
+  body.errText = body.errText || errText;
+  return body
 }

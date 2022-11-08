@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
-using ProjectLexicon.Models.ForumThreads;
 using ProjectLexicon.Models.Tags;
 
 namespace ProjectLexicon.Controllers
@@ -33,11 +32,16 @@ namespace ProjectLexicon.Controllers
         // Get List
         // =======================================
 
+
         [HttpGet("list")]
-        public Response GetList(string filter, int userId, int ForumCategoryId, List<int> tagIds)
+        public Response GetList(string? filter, string? userId, int? ForumThreadId, string? tagIds)
         {
-            return new Response(Filter(filter, userId, ForumCategoryId, tagIds));
+            List<int>? tagIdNumbers = parseIntList(tagIds);
+            if (tagIdNumbers == null)
+                return new Response(415, "Tag id's were not in recognized format");
+            return new Response(Filter(filter, userId, ForumThreadId, tagIdNumbers));
         }
+
 
         // =======================================
         // Get Item
@@ -48,7 +52,7 @@ namespace ProjectLexicon.Controllers
         {
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
             return item == null ?
-                new Response(404, "Category not found") :
+                new Response(404, "Post not found") :
                 new Response(item);
         }
 
@@ -58,24 +62,29 @@ namespace ProjectLexicon.Controllers
         [HttpPost("Add")]
         public Response PostAdd(
             int forumThreadId,
-            List<int> tagIds,
-            string text,
-            string quotedText,
+            string? tagIds,
+            string? text,
+            string? quotedText,
             int? forumPostId
          )
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys)) {
+            if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys))
+            {
                 return new Response(101, "No permission");
             }
 
-            List<Tag> tags = DbUtils.GetItemsByIds(Context.Tags, tagIds);
+            List<int>? tagIdNumbers = parseIntList(tagIds);
+            if (tagIdNumbers == null)
+                return new Response(415, "Tag id's were not in recognized format");
+
+            List<Tag> tags = DbUtils.GetItemsByIds(Context.Tags, tagIdNumbers);
             ForumPost? item = new() {
                 ForumThreadId = forumThreadId,
                 Tags = tags,
-                Text = text,
-                QuotedText = quotedText,
+                Text = text ?? "",
+                QuotedText = quotedText ?? "",
                 ForumPostId = forumPostId,
                 UserId = UserId.Get(User),
                 CreatedDate = DateTime.Now,
@@ -96,7 +105,7 @@ namespace ProjectLexicon.Controllers
         public Response PostUpdate(
             int id,
             int forumThreadId,
-            List<int> tagIds,
+            string? tagIds,
             string text,
             string quotedText,
             int? forumPostId
@@ -104,19 +113,24 @@ namespace ProjectLexicon.Controllers
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys)) {
+            if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys))
                 return new Response(101, "No permission");
-            }
+
+            List<int>? tagIdNumbers = parseIntList(tagIds);
+            if (tagIdNumbers == null)
+                return new Response(415, "Tag id's were not in recognized format");
 
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
                 return new Response(404, "Post not found");
-            // If not mod, check that
-            // - it is the users own post
-            // - It has not passed more than 5 minutes since creation
-            // - Thread id has not changed
 
-            if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys)) {
+            // If not admin, check that
+            // - it is the users own post
+            // - Thread id has not changed
+            // - It has not passed more than 5 minutes since creation
+
+            if (!UserId.HasRole(User, Role.Admin, Role.Sys))
+            {
                 bool permission = true;
                 permission &= item.UserId == UserId.Get(User);
                 permission &= item.ForumThreadId == forumThreadId;
@@ -125,18 +139,20 @@ namespace ProjectLexicon.Controllers
                     return new Response(101, "No permission");
             }
 
-            if (forumPostId != null) {
+            if (forumPostId != null)
+            {
                 ForumPost? quotedPost = DS.FirstOrDefault(item => item.Id == forumPostId);
                 if (quotedPost == null)
                     return new Response(404, "Quoted Post not found");
-                if (!quotedPost.Text.Contains(quotedText)) {
+                if (!quotedPost.Text.Contains(quotedText))
+                {
                     return new Response(101, "Quoted Post does not contain quoted string");
                 }
             }
 
 
             item.ForumThreadId = forumThreadId;
-            item.Tags = DbUtils.GetItemsByIds(Context.Tags, tagIds);
+            item.Tags = DbUtils.GetItemsByIds(Context.Tags, tagIdNumbers);
             item.Text = text;
             item.ForumPostId = forumPostId;
             item.QuotedText = quotedText;
@@ -154,12 +170,14 @@ namespace ProjectLexicon.Controllers
         {
             if (!ModelState.IsValid)
                 return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
+            if (!UserId.HasRole(User, Role.Admin))
+            {
                 return new Response(101, "No permission");
             }
 
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
-            if (item == null) {
+            if (item == null)
+            {
                 // We try delete item that does not exist, so basically a success?
                 return new Response();
             }
@@ -169,16 +187,32 @@ namespace ProjectLexicon.Controllers
             return new Response();
         }
 
-        private List<ForumPost> Filter(string filter, int userId, int ForumThreadId, List<int> tagIds)
+        static private List<int>? parseIntList(string? str)
+        {
+            if (string.IsNullOrEmpty(str))
+                return new();
+            List<int>? ret = new();
+            string[] ar = str.Split(',');
+            foreach (string item in ar)
+            {
+                bool success = int.TryParse(item.Trim(), out int number);
+                if (!success)
+                    return null;
+                ret.Add(number);
+            }
+            return ret;
+        }
+
+        private List<ForumPost> Filter(string? filter, string? userId, int? forumThreadId, List<int>? tagIds)
         {
             return DS.Where(p =>
                 (string.IsNullOrEmpty(filter) || p.Text.Contains(filter))
                 &&
-                (userId == 0 || p.ForumThreadId == ForumThreadId)
+                (string.IsNullOrEmpty(userId) || p.UserId == userId)
                 &&
-                (ForumThreadId == 0 || p.ForumThreadId == ForumThreadId)
+                (forumThreadId == null || forumThreadId == 0 || p.ForumThreadId == forumThreadId)
                 &&
-                (tagIds.Count == 0 || p.Tags.Any(t => tagIds.Any(tagId => tagId == t.Id)))
+                (tagIds == null || tagIds.Count == 0 || p.Tags.Any(t => tagIds.Any(tagId => tagId == t.Id)))
                 )
                 .ToList();
         }
