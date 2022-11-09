@@ -31,14 +31,14 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("list")]
-        public Response GetList(string filter)
+        public Response<List<Tag>> GetList(string filter)
         {
             List<Tag> ret = new();
             ret.AddRange(string.IsNullOrEmpty(filter) ?
                 DS :
                 DS.Where(p => p.Name.Contains(filter))
              );
-            return new Response(ret);
+            return new Response<List<Tag>>(ret);
         }
 
         // =======================================
@@ -46,13 +46,13 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("Item")]
-        public Response GetItem(int id)
+        public Response<Tag> GetItem(int id)
         {
             Tag? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null) {
                 item = new() { Name = "" };
             }
-            return new Response(item);
+            return new Response<Tag>(item);
         }
 
         // =======================================
@@ -60,19 +60,19 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("Add")]
-        public Response PostAdd(string name)
+        public Response<Tag> PostAdd(string name)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<Tag>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin)) {
-                return new Response(101, "No permission");
+                return new Response<Tag>(101, "No permission");
             }
 
 
             Tag? item = new() { Name = name, UserId = UserId.Get(User) };
             DS.Add(item);
             Context.SaveChanges();
-            return new Response(item);
+            return new Response<Tag>(item);
         }
 
         // =======================================
@@ -81,21 +81,21 @@ namespace ProjectLexicon.Controllers
 
         [HttpPost]
         [HttpPost("Update")]
-        public Response PostUpdate(int id, string name)
+        public Response<Tag> PostUpdate(int id, string name)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<Tag>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin)) {
-                return new Response(101, "No permission");
+                return new Response<Tag>(101, "No permission");
             }
 
             Tag? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
-                return new Response(404, "Tag not found");
+                return new Response<Tag>(404, "Tag not found");
             item.Name = name;
             Context.SaveChanges();
 
-            return new Response(item);
+            return new Response<Tag>(item);
         }
 
         // =======================================
@@ -103,22 +103,22 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("delete")]
-        public Response PostDelete(int id)
+        public Response<Tag> PostDelete(int id)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<Tag>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin)) {
-                return new Response(101, "No permission");
+                return new Response<Tag>(101, "No permission");
             }
 
             Tag? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null) {
                 // We try delete item that does not exist, so basically a success?
-                return new Response();
+                return new Response<Tag>();
             }
             DS.Remove(item);
             Context.SaveChanges();
-            return new Response();
+            return new Response<Tag>();
 
         }
     }

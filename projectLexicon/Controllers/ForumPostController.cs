@@ -34,12 +34,12 @@ namespace ProjectLexicon.Controllers
 
 
         [HttpGet("list")]
-        public Response GetList(string? filter, string? userId, int? ForumThreadId, string? tagIds)
+        public Response<List<ForumPost>> GetList(string? filter, string? userId, int? ForumThreadId, string? tagIds)
         {
             List<int>? tagIdNumbers = parseIntList(tagIds);
             if (tagIdNumbers == null)
-                return new Response(415, "Tag id's were not in recognized format");
-            return new Response(Filter(filter, userId, ForumThreadId, tagIdNumbers));
+                return new Response<List<ForumPost>>(415, "Tag id's were not in recognized format");
+            return new Response<List<ForumPost>>(Filter(filter, userId, ForumThreadId, tagIdNumbers));
         }
 
 
@@ -48,51 +48,52 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("Item")]
-        public Response GetItem(int id)
+        public Response<ForumPost> GetItem(int id)
         {
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
             return item == null ?
-                new Response(404, "Post not found") :
-                new Response(item);
+                new Response<ForumPost>(404, "Post not found") :
+                new Response<ForumPost>(item);
         }
 
         // =======================================
         // === Add Item
         // =======================================
         [HttpPost("Add")]
-        public Response PostAdd(
+        public Response<ForumPost> PostAdd(
             int forumThreadId,
             string? tagIds,
             string? text,
             string? quotedText,
-            int? forumPostId
+            int? quotedPostId
          )
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<ForumPost>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys))
             {
-                return new Response(101, "No permission");
+                return new Response<ForumPost>(101, "No permission");
             }
 
             List<int>? tagIdNumbers = parseIntList(tagIds);
             if (tagIdNumbers == null)
-                return new Response(415, "Tag id's were not in recognized format");
-
+                return new Response<ForumPost>(415, "Tag id's were not in recognized format");
+            if (quotedPostId == 0)
+                quotedPostId = null;
             List<Tag> tags = DbUtils.GetItemsByIds(Context.Tags, tagIdNumbers);
             ForumPost? item = new() {
                 ForumThreadId = forumThreadId,
                 Tags = tags,
                 Text = text ?? "",
                 QuotedText = quotedText ?? "",
-                ForumPostId = forumPostId,
+                QuotedPostId = quotedPostId,
                 UserId = UserId.Get(User),
                 CreatedDate = DateTime.Now,
             };
 
             DS.Add(item);
             Context.SaveChanges();
-            return new Response(item);
+            return new Response<ForumPost>(item);
         }
 
         // =======================================
@@ -102,27 +103,27 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("Update")]
-        public Response PostUpdate(
+        public Response<ForumPost> PostUpdate(
             int id,
             int forumThreadId,
             string? tagIds,
             string text,
             string quotedText,
-            int? forumPostId
+            int? quotedPostId
         )
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<ForumPost>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.User, Role.Admin, Role.Sys))
-                return new Response(101, "No permission");
+                return new Response<ForumPost>(101, "No permission");
 
             List<int>? tagIdNumbers = parseIntList(tagIds);
             if (tagIdNumbers == null)
-                return new Response(415, "Tag id's were not in recognized format");
+                return new Response<ForumPost>(415, "Tag id's were not in recognized format");
 
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
-                return new Response(404, "Post not found");
+                return new Response<ForumPost>(404, "Post not found");
 
             // If not admin, check that
             // - it is the users own post
@@ -136,17 +137,17 @@ namespace ProjectLexicon.Controllers
                 permission &= item.ForumThreadId == forumThreadId;
                 permission &= DateTime.Now.Subtract(item.CreatedDate).TotalMinutes <= 5;
                 if (!permission)
-                    return new Response(101, "No permission");
+                    return new Response<ForumPost>(101, "No permission");
             }
 
-            if (forumPostId != null)
+            if (quotedPostId != null)
             {
-                ForumPost? quotedPost = DS.FirstOrDefault(item => item.Id == forumPostId);
+                ForumPost? quotedPost = DS.FirstOrDefault(item => item.Id == quotedPostId);
                 if (quotedPost == null)
-                    return new Response(404, "Quoted Post not found");
+                    return new Response<ForumPost>(404, "Quoted Post not found");
                 if (!quotedPost.Text.Contains(quotedText))
                 {
-                    return new Response(101, "Quoted Post does not contain quoted string");
+                    return new Response<ForumPost>(101, "Quoted Post does not contain quoted string");
                 }
             }
 
@@ -154,11 +155,11 @@ namespace ProjectLexicon.Controllers
             item.ForumThreadId = forumThreadId;
             item.Tags = DbUtils.GetItemsByIds(Context.Tags, tagIdNumbers);
             item.Text = text;
-            item.ForumPostId = forumPostId;
+            item.QuotedPostId = quotedPostId;
             item.QuotedText = quotedText;
             Context.SaveChanges();
 
-            return new Response(item);
+            return new Response<ForumPost>(item);
         }
 
         // =======================================
@@ -166,25 +167,25 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("delete")]
-        public Response PostDelete(int id)
+        public Response<ForumPost> PostDelete(int id)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<ForumPost>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin))
             {
-                return new Response(101, "No permission");
+                return new Response<ForumPost>(101, "No permission");
             }
 
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
             {
                 // We try delete item that does not exist, so basically a success?
-                return new Response();
+                return new Response<ForumPost>();
             }
 
             item.ArchivedDate = DateTime.Now;
             Context.SaveChanges();
-            return new Response();
+            return new Response<ForumPost>();
         }
 
         static private List<int>? parseIntList(string? str)
