@@ -43,12 +43,21 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="ClientApp\src\components\EventNew.jsx" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Include="Services\Seeding\Genders.json" />
   </ItemGroup>
 
   <ItemGroup>
     <Folder Include="Migrations\" />
     <Folder Include="Models\Home\" />
+    <Folder Include="Services\Migrations\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <TypeScriptCompile Include="ClientApp\src\components\EventNew.jsx" />
   </ItemGroup>
 
   <Target Name="DebugEnsureNodeEnv" BeforeTargets="Build" Condition=" '$(Configuration)' == 'Debug' And !Exists('$(SpaRoot)node_modules') ">

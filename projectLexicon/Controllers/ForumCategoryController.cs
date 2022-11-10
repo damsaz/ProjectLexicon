@@ -39,7 +39,7 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("list")]
-        public Response GetList()
+        public Response<List<ForumCategory>> GetList()
         {
             List<ForumCategory> ret = new();
             string? filter = null;
@@ -47,7 +47,7 @@ namespace ProjectLexicon.Controllers
                 DS :
                 DS.Where(p => p.Name.Contains(filter))
              );
-            return new Response(ret);
+            return new Response<List<ForumCategory>>(ret);
         }
 
 
@@ -56,7 +56,7 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("Item")]
-        public Response GetItem(int id)
+        public Response<ForumCategory> GetItem(int id)
         {
             ForumCategory? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
@@ -64,7 +64,7 @@ namespace ProjectLexicon.Controllers
                 //return new Response(404, "Category not found");
                 item = new ForumCategory() { Id = 0, Name = "" };
             }
-            return new Response(item);
+            return new Response<ForumCategory>(item);
         }
 
         // =======================================
@@ -72,18 +72,18 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("Add")]
-        public Response PostAdd(string name)
+        public Response<ForumCategory> PostAdd(string name)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<ForumCategory>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin))
             {
-                return new Response(101, "No permission");
+                return new Response<ForumCategory>(101, "No permission");
             }
             ForumCategory? item = new() { Name = name, UserId = UserId.Get(User) };
             DS.Add(item);
             Context.SaveChanges();
-            return new Response(item);
+            return new Response<ForumCategory>(item);
         }
 
         // =======================================
@@ -91,22 +91,22 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("Update")]
-        public Response PostUpdate(int id, string name)
+        public Response<ForumCategory> PostUpdate(int id, string name)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<ForumCategory>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin))
             {
-                return new Response(101, "No permission");
+                return new Response<ForumCategory>(101, "No permission");
             }
 
             ForumCategory? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
-                return new Response(404, "Category not found");
+                return new Response<ForumCategory>(404, "Category not found");
             item.Name = name;
             Context.SaveChanges();
 
-            return new Response(item);
+            return new Response<ForumCategory>(item);
         }
 
         // =======================================
@@ -114,26 +114,26 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("delete")]
-        public Response PostDelete(int id)
+        public Response<ForumCategory> PostDelete(int id)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
+                return new Response<ForumCategory>(100, "Invalid input");
             if (!UserId.HasRole(User, Role.Admin))
             {
-                return new Response(101, "No permission");
+                return new Response<ForumCategory>(101, "No permission");
             }
 
             ForumCategory? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
             {
                 // We try delete item that does not exist, so basically a success?
-                return new Response();
+                return new Response<ForumCategory>();
             }
 
             var threads = Context.ForumThreads.Where(t => t.ForumCategoryId == id);
             if (threads != null && threads.Where(t => t.ArchivedDate == null).Any())
             {
-                return new Response(102, "Can not delete the category because it has associated active threads");
+                return new Response<ForumCategory>(102, "Can not delete the category because it has associated active threads");
             }
 
             if (threads != null && threads.Any())
@@ -145,7 +145,7 @@ namespace ProjectLexicon.Controllers
                 DS.Remove(item);
             }
             Context.SaveChanges();
-            return new Response();
+            return new Response<ForumCategory>();
         }
     }
 }

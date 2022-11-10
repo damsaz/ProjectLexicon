@@ -22,7 +22,7 @@ export function ForumPostNew(props) {
       tagIds: [],
       text,
       quotedText,
-      forumPostId: quotedPost ? quotedPost.id : 0
+      quotedPostId: quotedPost ? quotedPost.id : 0
     }
       
     const newItem = await apiPost("forumpost/Add", params);

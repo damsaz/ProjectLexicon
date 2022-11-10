@@ -33,9 +33,9 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("list")]
-        public Response GetList(string? filter, int? userId, int? ForumCategoryId)
+        public Response<List<ForumThread>> GetList(string? filter, int? userId, int? ForumCategoryId)
         {
-            return new Response(Filter(filter, userId, ForumCategoryId));
+            return new Response<List<ForumThread>>(Filter(filter, userId, ForumCategoryId));
         }
 
         // =======================================
@@ -43,13 +43,14 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("Item")]
-        public Response GetItem(int id)
+        public Response<ForumThread> GetItem(int id)
         {
             ForumThread? item = DS.FirstOrDefault(item => item.Id == id);
-            if (item == null) {
+            if (item == null)
+            {
                 item = new ForumThread() { Name = "" };
             }
-            return new Response(item);
+            return new Response<ForumThread>(item);
         }
 
 
@@ -58,24 +59,24 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("Add")]
-        public Response PostAdd(int forumCategoryId, string name)
+        public Response<ForumThread> PostAdd(int forumCategoryId, string name)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin, Role.User)) {
-                return new Response(101, "No permission");
+                return new Response<ForumThread>(100, "Invalid input");
+            if (!UserId.HasRole(User, Role.Admin, Role.User))
+            {
+                return new Response<ForumThread>(101, "No permission");
             }
 
-            ForumThread? item = new() {
-                Name = name,
-                ForumCategoryId = forumCategoryId,
-                UserId = UserId.Get(User),
-                CreatedDate = DateTime.Now,
-            };
+            ForumThread item = new();
+            item.Name = name;
+            item.ForumCategoryId = forumCategoryId;
+            item.UserId = UserId.Get(User);
+            item.CreatedDate = DateTime.Now;
 
             DS.Add(item);
             Context.SaveChanges();
-            return new Response(item);
+            return new Response<ForumThread>(item);
         }
 
         // =======================================
@@ -84,24 +85,25 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("Update")]
-        public Response PostUpdate(int id, int forumCategoryId, string name)
+        public Response<ForumThread> PostUpdate(int id, int forumCategoryId, string name)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
-                return new Response(101, "No permission");
+                return new Response<ForumThread>(100, "Invalid input");
+            if (!UserId.HasRole(User, Role.Admin))
+            {
+                return new Response<ForumThread>(101, "No permission");
             }
 
             ForumThread? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
-                return new Response(404, "Thread not found");
+                return new Response<ForumThread>(404, "Thread not found");
 
 
             item.Name = name;
             item.ForumCategoryId = forumCategoryId;
             Context.SaveChanges();
 
-            return new Response(item);
+            return new Response<ForumThread>(item);
         }
 
         // =======================================
@@ -110,25 +112,27 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpPost("delete")]
-        public Response PostDelete(int id)
+        public Response<ForumThread> PostDelete(int id)
         {
             if (!ModelState.IsValid)
-                return new Response(100, "Invalid input");
-            if (!UserId.HasRole(User, Role.Admin)) {
-                return new Response(101, "No permission");
+                return new Response<ForumThread>(100, "Invalid input");
+            if (!UserId.HasRole(User, Role.Admin))
+            {
+                return new Response<ForumThread>(101, "No permission");
             }
 
             ForumThread? item = DS.FirstOrDefault(item => item.Id == id);
-            if (item == null) {
+            if (item == null)
+            {
                 // We try delete item that does not exist, so basically a success?
-                return new Response();
+                return new Response<ForumThread>();
             }
             // Warning! Do not use this on large datasets!
             // Context.ForumPost.RemoveRange(Context.ForumPost.Where(x => x.ThreadId = id));
 
             DS.Remove(item);
             Context.SaveChanges();
-            return new Response();
+            return new Response<ForumThread>();
         }
 
         private List<ForumThread> Filter(string? filter, int? userId, int? ForumCategoryId)

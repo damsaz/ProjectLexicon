@@ -1,4 +1,5 @@
-﻿using ProjectLexicon.Models.Shared;
+﻿using ProjectLexicon.Models.ForumCategories;
+using ProjectLexicon.Models.Shared;
 using System;
 
 namespace ProjectLexicon.Models.ForumThreads
@@ -7,8 +8,12 @@ namespace ProjectLexicon.Models.ForumThreads
     {
         override public int Id { get; set; }
         public string Name { get; set; } = "";
+
+        public ForumCategory ForumCategory { get; set; }
         public int ForumCategoryId { get; set; }
+
         public string UserId { get; set; }
+
         public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? ArchivedDate { get; set; }
     }
