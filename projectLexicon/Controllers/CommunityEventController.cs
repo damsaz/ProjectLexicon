@@ -12,7 +12,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-// Test av ny branch
+// Test av ny branch 2
 
 namespace ProjectLexicon.Controllers
 {
