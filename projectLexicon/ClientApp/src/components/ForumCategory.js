@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import { Button } from 'reactstrap';
 import authService from './api-authorization/AuthorizeService'
-import { FormCategoryDetail } from './ForumCategoryDetail';
-import { ForumThread } from './ForumThread';
+import { ForumCategoryDetail } from './ForumCategoryDetail';
+import { ForumThreads } from './ForumThreads';
 import "./root.css";
 import "./popup.css";
 
@@ -86,12 +86,13 @@ export class ForumCategory extends Component {
         {this.state.showPopup &&
           <div className="popupBase">
             <div className="popupForm">
-              <FormCategoryDetail
+              <ForumCategoryDetail
                 handleClose={this.handleClose}
                 popupId={this.state.popupId}
                 onAdd={this.handleAddItem}
                 onChange={this.handleEditItem}
                 onDelete={this.handleDeleteItem}
+                category={{}}
               />
             </div>
           </div>
@@ -99,7 +100,7 @@ export class ForumCategory extends Component {
         {this.state.showThreadsPopup &&
           <div className="popupBase">
             <div className="popupForm">
-              <ForumThread onClose={this.handleCloseThreads} forumCategoryId={this.state.categoryPopupId} />
+              <ForumThreads onClose={this.handleCloseThreads} forumCategoryId={this.state.categoryPopupId} />
             </div>
           </div>
         }

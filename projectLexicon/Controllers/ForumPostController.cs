@@ -10,6 +10,14 @@ using System.Collections.Generic;
 using System.Linq;
 using Microsoft.Extensions.Logging;
 using ProjectLexicon.Models.Tags;
+using ProjectLexicon.Models;
+using ProjectLexicon.Entities;
+using NuGet.Configuration;
+using System.Threading.Tasks;
+using ProjectLexicon.Models.ForumThreads;
+using static System.Net.Mime.MediaTypeNames;
+using Duende.IdentityServer.Extensions;
+using System.Security.Claims;
 
 namespace ProjectLexicon.Controllers
 {
@@ -20,12 +28,43 @@ namespace ProjectLexicon.Controllers
         private readonly ILogger<ForumPostController> _logger;
         private ApplicationDbContext Context { get; set; }
         private DbSet<ForumPost> DS { get; set; }
+        private readonly IUserManagementService _umService;
 
-        public ForumPostController(ILogger<ForumPostController> logger, ApplicationDbContext dbContext)
+        public ForumPostController(IUserManagementService umService, ILogger<ForumPostController> logger, ApplicationDbContext dbContext)
         {
             _logger = logger;
             Context = dbContext;
             DS = Context.ForumPosts;
+            _umService = umService;
+        }
+
+        // =======================================
+        // Get CurrentUserInfo
+        // =======================================
+
+        public class UserInfo
+        {
+            public string UserName { get; set; } = "";
+            public string UserRole { get; set; } = "";
+        }
+
+        [HttpGet("UserInfo")]
+        public Response<UserInfo> GetUserInfo()
+        {
+            UserInfo ret = UserId.GetUserInfo(User);
+            return new Response<UserInfo>(ret);
+        }
+
+        [HttpGet("CurrentUser")]
+        public async Task<Response<ApplicationUser>> GetCurrentUser(string id)
+        {
+            string userId = UserId.Get(User);
+            var user = await _umService.FindUserAsync(id);
+
+            if (user == null)
+                return new Response<ApplicationUser>(404, "Post not found");
+
+            return new Response<ApplicationUser>(user);
         }
 
         // =======================================
@@ -34,12 +73,14 @@ namespace ProjectLexicon.Controllers
 
 
         [HttpGet("list")]
-        public Response<List<ForumPost>> GetList(string? filter, string? userId, int? ForumThreadId, string? tagIds)
+        public Response<List<ForumPost>> GetList(string? filter, string? userId, int? ForumThreadId, string? tagIds, bool? archived)
         {
             List<int>? tagIdNumbers = parseIntList(tagIds);
             if (tagIdNumbers == null)
                 return new Response<List<ForumPost>>(415, "Tag id's were not in recognized format");
-            return new Response<List<ForumPost>>(Filter(filter, userId, ForumThreadId, tagIdNumbers));
+            bool showArchived = UserId.HasRole(User, Role.Admin, Role.Sys);
+            List<ForumPost> items = Filter(filter, userId, ForumThreadId, tagIdNumbers, showArchived);
+            return new(items);
         }
 
 
@@ -51,10 +92,18 @@ namespace ProjectLexicon.Controllers
         public Response<ForumPost> GetItem(int id)
         {
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
-            return item == null ?
-                new Response<ForumPost>(404, "Post not found") :
-                new Response<ForumPost>(item);
+
+            if (item == null)
+                return new Response<ForumPost>(404, "Post not found");
+
+            item.QuotedPost = item.QuotedPostId switch {
+                0 => null,
+                _ => DS.FirstOrDefault(x => x.Id == item.QuotedPostId)
+
+            };
+            return new Response<ForumPost>(item);
         }
+
 
         // =======================================
         // === Add Item
@@ -93,6 +142,19 @@ namespace ProjectLexicon.Controllers
 
             DS.Add(item);
             Context.SaveChanges();
+
+            // Reload post from database
+
+            item = DS.FirstOrDefault(x => x.Id == item.Id);
+            if (item == null)
+                return new Response<ForumPost>(
+                    404,
+                    "An error seems to have occured while saving the new post. Please reload the page and check that your new post has been added");
+
+            item.QuotedPost = item.QuotedPostId switch {
+                0 => null,
+                _ => DS.FirstOrDefault(x => x.Id == item.QuotedPostId)
+            };
             return new Response<ForumPost>(item);
         }
 
@@ -178,14 +240,12 @@ namespace ProjectLexicon.Controllers
 
             ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
             if (item == null)
-            {
-                // We try delete item that does not exist, so basically a success?
-                return new Response<ForumPost>();
-            }
+                return new Response<ForumPost>(404, "Post not found");
+
 
             item.ArchivedDate = DateTime.Now;
             Context.SaveChanges();
-            return new Response<ForumPost>();
+            return new Response<ForumPost>(item);
         }
 
         static private List<int>? parseIntList(string? str)
@@ -204,9 +264,11 @@ namespace ProjectLexicon.Controllers
             return ret;
         }
 
-        private List<ForumPost> Filter(string? filter, string? userId, int? forumThreadId, List<int>? tagIds)
+        private List<ForumPost> Filter(string? filter, string? userId, int? forumThreadId, List<int>? tagIds, bool archived)
         {
-            return DS.Where(p =>
+            return DS
+                .Include("QuotedPost")
+                .Where(p =>
                 (string.IsNullOrEmpty(filter) || p.Text.Contains(filter))
                 &&
                 (string.IsNullOrEmpty(userId) || p.UserId == userId)
@@ -214,6 +276,8 @@ namespace ProjectLexicon.Controllers
                 (forumThreadId == null || forumThreadId == 0 || p.ForumThreadId == forumThreadId)
                 &&
                 (tagIds == null || tagIds.Count == 0 || p.Tags.Any(t => tagIds.Any(tagId => tagId == t.Id)))
+                &&
+                (archived || p.ArchivedDate == null)
                 )
                 .ToList();
         }

@@ -9,11 +9,11 @@ using ProjectLexicon.Services;
 
 #nullable disable
 
-namespace ProjectLexicon.Services.Migrations
+namespace ProjectLexicon.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20221031092923_2")]
-    partial class _2
+    [Migration("20221110111749_init-and-kurt-1")]
+    partial class initandkurt1
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
@@ -163,6 +163,21 @@ namespace ProjectLexicon.Services.Migrations
                     b.HasIndex("SubjectId", "SessionId", "Type");
 
                     b.ToTable("PersistedGrants", (string)null);
+                });
+
+            modelBuilder.Entity("ForumPostTag", b =>
+                {
+                    b.Property<int>("ForumPostsId")
+                        .HasColumnType("int");
+
+                    b.Property<int>("TagsId")
+                        .HasColumnType("int");
+
+                    b.HasKey("ForumPostsId", "TagsId");
+
+                    b.HasIndex("TagsId");
+
+                    b.ToTable("ForumPostTag");
                 });
 
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
@@ -404,6 +419,180 @@ namespace ProjectLexicon.Services.Migrations
                     b.ToTable("Genders");
                 });
 
+            modelBuilder.Entity("ProjectLexicon.Models.Events.CommunityEvent", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<string>("Content")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("StartDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Subject")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<DateTime>("Timestamp")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("CommunityEvents");
+                });
+
+            modelBuilder.Entity("ProjectLexicon.Models.ForumCategories.ForumCategory", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("ArchivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("Created")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("ForumCategories");
+
+                    b.HasData(
+                        new
+                        {
+                            Id = 1,
+                            Created = new DateTime(2022, 11, 10, 12, 17, 49, 105, DateTimeKind.Local).AddTicks(3671),
+                            Name = "Cars"
+                        },
+                        new
+                        {
+                            Id = 2,
+                            Created = new DateTime(2022, 11, 10, 12, 17, 49, 105, DateTimeKind.Local).AddTicks(3721),
+                            Name = "Trains"
+                        });
+                });
+
+            modelBuilder.Entity("ProjectLexicon.Models.ForumPosts.ForumPost", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("ArchivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ForumThreadId")
+                        .HasColumnType("int");
+
+                    b.Property<int?>("QuotedPostId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("QuotedText")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Text")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(450)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ForumThreadId");
+
+                    b.HasIndex("QuotedPostId");
+
+                    b.HasIndex("UserId");
+
+                    b.ToTable("ForumPosts");
+                });
+
+            modelBuilder.Entity("ProjectLexicon.Models.ForumThreads.ForumThread", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime?>("ArchivedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<int>("ForumCategoryId")
+                        .HasColumnType("int");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("ForumCategoryId");
+
+                    b.ToTable("ForumThreads");
+                });
+
+            modelBuilder.Entity("ProjectLexicon.Models.Tags.Tag", b =>
+                {
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"), 1L, 1);
+
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Name")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("UserId")
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Tags");
+                });
+
+            modelBuilder.Entity("ForumPostTag", b =>
+                {
+                    b.HasOne("ProjectLexicon.Models.ForumPosts.ForumPost", null)
+                        .WithMany()
+                        .HasForeignKey("ForumPostsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectLexicon.Models.Tags.Tag", null)
+                        .WithMany()
+                        .HasForeignKey("TagsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
             modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRoleClaim<string>", b =>
                 {
                     b.HasOne("Microsoft.AspNetCore.Identity.IdentityRole", null)
@@ -453,6 +642,40 @@ namespace ProjectLexicon.Services.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("ProjectLexicon.Models.ForumPosts.ForumPost", b =>
+                {
+                    b.HasOne("ProjectLexicon.Models.ForumThreads.ForumThread", "ForumThread")
+                        .WithMany()
+                        .HasForeignKey("ForumThreadId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("ProjectLexicon.Models.ForumPosts.ForumPost", "QuotedPost")
+                        .WithMany()
+                        .HasForeignKey("QuotedPostId");
+
+                    b.HasOne("ProjectLexicon.Entities.ApplicationUser", "User")
+                        .WithMany()
+                        .HasForeignKey("UserId");
+
+                    b.Navigation("ForumThread");
+
+                    b.Navigation("QuotedPost");
+
+                    b.Navigation("User");
+                });
+
+            modelBuilder.Entity("ProjectLexicon.Models.ForumThreads.ForumThread", b =>
+                {
+                    b.HasOne("ProjectLexicon.Models.ForumCategories.ForumCategory", "ForumCategory")
+                        .WithMany()
+                        .HasForeignKey("ForumCategoryId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("ForumCategory");
                 });
 #pragma warning restore 612, 618
         }

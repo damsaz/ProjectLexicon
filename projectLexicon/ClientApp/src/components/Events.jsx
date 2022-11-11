@@ -59,7 +59,7 @@ export function Events(props) {
         )}
         <ListGroup>
           {items.map((item) => (
-            <ListGroupItem id={item.id}>
+            <ListGroupItem id={item.id} key={`event-${item.id}`}>
               <EventWrap
                 item={item}
               />

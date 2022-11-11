@@ -2,19 +2,16 @@ import React, { useState } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
 import { apiPost } from '../api/api'
 import { ErrBase } from './ErrBase'
+import './Forum.css'
 
 export function ForumPostNew(props) {
-  const { forumThread, quotedPost, quotedText, onClose, onAdd } = props;
-  const [text, setText] = useState("Startvalue");
+  const { forumThread, quotedPost, quotedText, quotedDate, onClose, onAdd } = props;
+  const [text, setText] = useState("");
   const [errmsg, setErrmsg] = useState("");
 
   function doClose() {
     onClose();
   }
-
-  //function handleTextChange(value) {
-  //  setText(e.target.value);
-  //}
 
   async function savePost() {
     const params = {
@@ -24,39 +21,51 @@ export function ForumPostNew(props) {
       quotedText,
       quotedPostId: quotedPost ? quotedPost.id : 0
     }
-      
+
     const newItem = await apiPost("forumpost/Add", params);
     if (newItem.errText) {
       return setErrmsg(newItem.errText);
     }
-    newItem.result && props.onAdd(newItem.result);
+    if (newItem.result) {
+      onAdd(newItem.result);
+    }
     doClose();
   }
 
   function handleValueChanged(e) {
     setText(e.target.value)
+    console.log(`text set to ${e.target.value}`)
   }
+
+  const quotedUserName = quotedPost && quotedPost.user.email || "Unknown"
 
   return (
     <>
       <Form>
         <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />
         <FormGroup>
-          {!!quotedText && (<><Label>{quotedText}</Label><hr></hr></>)}
-          <Label for="text">New Post</Label>
+          {quotedPost &&
+            <>
+            <p>Answer to {quotedUserName} at {quotedDate || 'sometime'}
+              </p>
+              {quotedText && <blockquote className="small-text">{quotedText}</blockquote>}
+            </>
+          }
+
           <Input
             type="textarea"
             name="text"
             id="text"
             value={text}
-            placeholder="Write someting interesting"
+            placeholder="Write text to your new post"
             onChange={handleValueChanged}
           />
         </FormGroup>
-        <Button onClick={savePost}>Save Post</Button>
-        <Button onClick={doClose}>Cancel</Button>
+        <div className="buttonBox">
+          <Button className="formButton" onClick={savePost}>Save Post</Button>
+          <Button className="formButton" onClick={doClose}>Cancel</Button>
+        </div>
       </Form>
-      <p>item.Text</p>
     </>
   );
 }

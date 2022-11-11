@@ -11,7 +11,7 @@ import "./root.css";
 import { ErrBase } from './ErrBase'
 
 
-export function FormThreadDetail(props) {
+export function ForumThreadDetail(props) {
   const { popupId, handleClose, forumCategoryId } = props
   const [orgItem, setOrgItem] = useState({ forumCategoryId: forumCategoryId })
   const [formItem, setFormItem] = useState({});

@@ -39,8 +39,14 @@ namespace ProjectLexicon.Services
                 return;
             }
 
+            // Maybe we need this??
+            // modelBuilder.Entity<ApplicationUser>(b => { b.HasMany(p => p.ForumPosts); });
+
             List<ForumCategory> ForumCategories = InitData.SeedForumCategories();
             modelBuilder.Entity<ForumCategory>().HasData(ForumCategories.ToArray());
+
+            modelBuilder.Entity<ForumPost>().Navigation(x => x.User).AutoInclude();
+            // modelBuilder.Entity<ForumPost>().Navigation(x => x.QuotedPost).AutoInclude();
 
             //// Global turn off delete behaviour on foreign keys
             //// https://github.com/dotnet/efcore/issues/13366

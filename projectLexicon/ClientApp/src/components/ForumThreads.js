@@ -1,15 +1,12 @@
 import React, { Component } from "react";
 import { Button } from "reactstrap";
-import authService from "./api-authorization/AuthorizeService";
-import { FormThreadDetail } from "./ForumThreadDetail";
+import { ForumThreadDetail } from "./ForumThreadDetail";
 import "./root.css";
 import "./popup.css";
 import { apiGet } from "../api/api";
-import { ForumPosts } from "./ForumPosts";
+import { ForumThread } from "./ForumThread";
 
-export class ForumThread extends Component {
-  static displayName = ForumThread.name;
-
+export class ForumThreads extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -66,7 +63,7 @@ export class ForumThread extends Component {
 
   handleDeleteThread(threadId) {
     let rows = [...this.state.rows];
-    const index = rows.findIndex((t) => t.id == threadId);
+    const index = rows.findIndex((t) => t.id === threadId);
     if (index > -1) {
       rows.splice(index, 1);
     }
@@ -75,7 +72,7 @@ export class ForumThread extends Component {
 
   handleEditThread(changedThread) {
     let rows = [...this.state.rows];
-    const index = rows.findIndex((t) => t.id == changedThread.id);
+    const index = rows.findIndex((t) => t.id === changedThread.id);
     if (index > -1) {
       rows[index] = { ...rows[index], ...changedThread };
     }
@@ -96,7 +93,7 @@ export class ForumThread extends Component {
         {this.state.showPosts && (
           <div className="popupBase">
             <div className="popupForm">
-              <ForumPosts
+              <ForumThread
                 forumThread={this.state.forumThread}
                 onClose={this.hidePosts}
               />
@@ -106,7 +103,7 @@ export class ForumThread extends Component {
         {this.state.showPopup && (
           <div className="popupBase">
             <div className="popupForm">
-              <FormThreadDetail
+              <ForumThreadDetail
                 onAdd={this.handleAddThread}
                 onChange={this.handleEditThread}
                 onDelete={this.handleDeleteThread}
@@ -137,7 +134,7 @@ export class ForumThread extends Component {
             </thead>
             <tbody>
               {this.state.rows
-                .filter((x) => x.forumCategoryId == this.props.forumCategoryId)
+                .filter((x) => x.forumCategoryId === this.props.forumCategoryId)
                 .map((x) => (
                   <tr key={x.id}>
                     <td>{x.id}</td>
