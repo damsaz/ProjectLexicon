@@ -12,6 +12,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
+// Test av ny branch
+
 namespace ProjectLexicon.Controllers
 {
     [Route("api/[controller]")]
