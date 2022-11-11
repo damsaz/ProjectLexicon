@@ -5,6 +5,8 @@ using ProjectLexicon.Models.Shared;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using ProjectLexicon.Models.ForumThreads;
+using Microsoft.AspNetCore.Identity;
+using ProjectLexicon.Entities;
 
 namespace ProjectLexicon.Models.ForumPosts
 {
@@ -16,6 +18,7 @@ namespace ProjectLexicon.Models.ForumPosts
         public ForumThread ForumThread { get; set; }
         public int ForumThreadId { get; set; }
 
+        public ApplicationUser User { get; set; }
         public string UserId { get; set; }
 
         public ForumPost? QuotedPost { get; set; }

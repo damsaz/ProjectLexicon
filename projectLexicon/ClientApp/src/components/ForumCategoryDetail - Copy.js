@@ -13,21 +13,23 @@ import { ErrBase } from "./ErrBase";
 export function ForumCategoryDetail(props) {
   const { popupId, handleClose, category } = props
   const [orgItem, setOrgItem] = useState(category || {})
-  const [formItem, setFormItem] = useState(category || {});
+  const [formItem, setFormItem] = useState(category ||{});
   const [errmsg, setErrmsg] = useState("");
 
-    useEffect(() => {
-      async function fetchData() {
-        let data = await apiGet('forumcategory/Item', { id: popupId })
-        if (data.errText) {
-          return setError(data.errText)
-        }
-        setOrgItem(data.result);
-        setFormItem(data.result);
+/*
+  useEffect(() => {
+    async function fetchData() {
+      let data = await apiGet('forumcategory/Item', { id: popupId })
+      if (data.errText) {
+        return setError(data.errText)
       }
-      if(!category.id) fetchData();
-    }, []);
-
+      setOrgItem(data.result);
+      setFormItem(data.result);
+    }
+    if(!category.id) fetchData();
+  }, []);
+*/
+  
   function setError(errmsg) {
     setErrmsg(errmsg)
     return 0;
@@ -92,12 +94,15 @@ export function ForumCategoryDetail(props) {
   const saveEnabled = !notValid;
 
   return (
+    <>
+    <p>Hejåhå</p>
+    {/*
     <div>
       {orgItem && (
         <div>
           <Form method="post" id="category-form">
             {errmsg &&
-              <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />}
+              <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />            }
             <input type="hidden" name="id" value={orgItem.id || ""} />
             <div className="inputBox">
               <InputText
@@ -123,5 +128,7 @@ export function ForumCategoryDetail(props) {
         </div>
       )}
     </div>
-  );
+    */}            
+    </>
+    );
 }

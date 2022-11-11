@@ -10,6 +10,7 @@ import { UsersRouter } from './components/users/UsersRouter';
 import AuthorizeRoute from './components/api-authorization/AuthorizeRoute';
 import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
+import { Forum } from './components/Forum';
 
 import './custom.css'
 
@@ -19,9 +20,10 @@ export default class App extends Component {
 	render() {
 		return (
 			<Layout>
-				<Route exact path='/' component={Home} />
+				<Route exact path='/' component={Forum} />
 				<Route path='/counter' component={Counter} />
 				<Route path='/fetch-data' component={FetchData} />
+				<Route path='/forum' component={Forum} />
 				<Route path='/forum-category' component={ForumCategory} />
 				<Route path='/community-events' component={Events} />
 				<AuthorizeRoute path='/users' component={UsersRouter} />

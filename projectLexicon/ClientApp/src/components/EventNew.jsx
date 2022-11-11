@@ -15,16 +15,11 @@ export function EventNew(props) {
     onClose();
   }
 
-  function mvcDate(date) {
-    if (!date) return date;
-    return date.slice(0, -1)
-  }
-
   async function saveItem() {
     let errors = []
-    if (subject.trim() == "") errors.push("Subject can't be empty");
-    if (content.trim() == "") errors.push("Content can't be empty");
-    if (startDate.trim() == "") errors.push("Start Date can't be empty");
+    if (subject.trim() === "") errors.push("Subject can't be empty");
+    if (content.trim() === "") errors.push("Content can't be empty");
+    if (startDate.trim() === "") errors.push("Start Date can't be empty");
     else if (new Date(startDate) - new Date() < 0) errors.push("Start Date has already passed");
 
     if (errors.length) {

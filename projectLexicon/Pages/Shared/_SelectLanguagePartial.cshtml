@@ -16,7 +16,7 @@
 
 	var returnUrl = string.IsNullOrEmpty(Context.Request.Path) ? "~/" : $"~{Context.Request.Path.Value}";
 }
-<form id="selectLanguage" asp-area="" asp-controller="Config"
+<form style="display:none" id="selectLanguage" asp-area="" asp-controller="Config"
 		asp-action="SetLanguage" asp-route-returnUrl="@returnUrl"
 		method="post" class="form-inline my-2 my-lg-2">
 		@SharedLocalizer["Language"]:
