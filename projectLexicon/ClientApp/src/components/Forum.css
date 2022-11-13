@@ -1,40 +1,63 @@
-﻿
-
-
-
-.nav-item {
-    color: black;
+﻿.nav-item {
+  color: black;
 }
 
 .forumPostsContainer {
-    min-width: 75vw;
+  min-width: 75vw;
 }
 
 .navcol {
-    background-color: lightgray;
-    border-style: solid;
-    border-width: 1px;
-    max-width: 10em;
-    padding: 0;
+  background-color: lightgray;
+  border-style: solid;
+  border-width: 1px;
+  max-width: 10em;
+  padding: 0;
 }
 
 .quoted-post {
-    border-style: solid;
-    border-width: 2px;
-    background-color: lightgoldenrodyellow;
+  border-style: solid;
+  border-width: 2px;
+  background-color: lightgoldenrodyellow;
 }
 
 .small-text {
-    font-size: 80%;
-    font-style: italic;
+  font-size: 80%;
+  font-style: italic;
 }
 
 .bordered {
-    border-style: solid;
-    border-width: 2px;
-    border-color: black;
+  border-style: solid;
+  border-width: 2px;
+  border-color: black;
 }
 
+.archived-post {
+  background-color: #606060;
+}
+
+.post {
+    background-color: #d0d0d0;
+}
+
+.grayish {
+    background-color: #a9a9a9;
+}
 blockquote {
-    margin-left: 1em;
+  margin-left: 1em;
+}
+
+.clickable {
+  background-color: darkblue;
+}
+
+.clickable:hover {
+  cursor: pointer;
+}
+
+.accheader {
+  background-color: #c0c0c0;
+}
+
+.accbody {
+  background-color: #e0e0e0;
 }

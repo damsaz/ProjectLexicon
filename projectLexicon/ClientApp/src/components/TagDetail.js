@@ -10,26 +10,24 @@ import { ErrBase } from "./ErrBase";
 
 
 
-export function ForumCategoryDetail(props) {
-  const { popupId, handleClose, category } = props
-  const [orgItem, setOrgItem] = useState(category || {})
-  const [formItem, setFormItem] = useState(category ||{});
+export function TagDetail(props) {
+  const { popupId, handleClose, tag } = props
+  const [orgItem, setOrgItem] = useState(tag || {})
+  const [formItem, setFormItem] = useState(tag || {});
   const [errmsg, setErrmsg] = useState("");
 
-/*
-  useEffect(() => {
-    async function fetchData() {
-      let data = await apiGet('forumcategory/Item', { id: popupId })
-      if (data.errText) {
-        return setError(data.errText)
+    useEffect(() => {
+      async function fetchData() {
+        let data = await apiGet('tag/Item', { id: popupId })
+        if (data.errText) {
+          return setError(data.errText)
+        }
+        setOrgItem(data.result);
+        setFormItem(data.result);
       }
-      setOrgItem(data.result);
-      setFormItem(data.result);
-    }
-    if(!category.id) fetchData();
-  }, []);
-*/
-  
+      if(!tag.id) fetchData();
+    }, []);
+
   function setError(errmsg) {
     setErrmsg(errmsg)
     return 0;
@@ -37,15 +35,15 @@ export function ForumCategoryDetail(props) {
 
   async function handleSave() {
     if (popupId === 0) {
-      const newItem = await apiPost('forumcategory/Add', { name: formItem.name })
+      const newItem = await apiPost('tag/Add', { name: formItem.name })
       if (newItem.errText) {
         return setError(newItem.errText)
       }
       newItem.result && props.onAdd(newItem.result)
 
     } else {
-      await apiPost('forumcategory/Update', { id: popupId, name: formItem.name })
-      const changedItem = await apiPost('forumcategory/Update', { id: popupId, name: formItem.name })
+      await apiPost('tag/Update', { id: popupId, name: formItem.name })
+      const changedItem = await apiPost('tag/Update', { id: popupId, name: formItem.name })
       if (changedItem.errText) {
         return setError(changedItem.errText)
       }
@@ -56,7 +54,7 @@ export function ForumCategoryDetail(props) {
   }
 
   async function handleDelete() {
-    const result = await apiPost('forumcategory/Delete', { id: popupId })
+    const result = await apiPost('tag/Delete', { id: popupId })
     if (result.errText) return setError(result.errText)
     props.onDelete(popupId);
     handleClose();
@@ -79,7 +77,7 @@ export function ForumCategoryDetail(props) {
   function validateItem(item) {
     if (!item) return {}
     let errs = {}
-    if (isNullOrEmpty(item.name)) errs.name = "Category name can not be empty"
+    if (isNullOrEmpty(item.name)) errs.name = "Tag name can not be empty"
     return errs
   }
 
@@ -94,20 +92,17 @@ export function ForumCategoryDetail(props) {
   const saveEnabled = !notValid;
 
   return (
-    <>
-    <p>Hejåhå</p>
-    {/*
     <div>
       {orgItem && (
         <div>
-          <Form method="post" id="category-form">
+          <Form method="post" id="tag-form">
             {errmsg &&
-              <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />            }
+              <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />}
             <input type="hidden" name="id" value={orgItem.id || ""} />
             <div className="inputBox">
               <InputText
                 id="name"
-                label="Category Name"
+                label="Tag Name"
                 err={errs.name}
                 value={formItem.name || ""}
                 orgValue={orgItem.name || ""}
@@ -128,7 +123,5 @@ export function ForumCategoryDetail(props) {
         </div>
       )}
     </div>
-    */}            
-    </>
-    );
+  );
 }

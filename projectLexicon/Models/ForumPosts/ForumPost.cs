@@ -1,4 +1,5 @@
-﻿using ProjectLexicon.Models.Tags;
+﻿#nullable enable
+using ProjectLexicon.Models.Tags;
 using System;
 using System.Collections.Generic;
 using ProjectLexicon.Models.Shared;

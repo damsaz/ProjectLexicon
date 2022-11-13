@@ -107,11 +107,31 @@ class NavMenuPlain extends Component {
                   <NavLink
                     tag={Link}
                     className="text-dark"
-                    to="/community-events"
+                    to="/tags"
+                  >
+                    {t("Tags")}
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    tag={Link}
+                    className="text-dark"
+                    to="/community-event-list"
                   >
                     {t("Events")}
                   </NavLink>
+                </NavItem>                
+                {/*
+                <NavItem>
+                  <NavLink
+                    tag={Link}
+                    className="text-dark"
+                    to="/community-events"
+                  >
+                    {t("EventsAdmin")}
+                  </NavLink>
                 </NavItem>
+                */}
                 {this.state.hasAdminRole && (
                   <NavItem>
                     <NavLink tag={Link} className="text-dark" to="/users">
