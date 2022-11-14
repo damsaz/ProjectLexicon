@@ -1,0 +1,88 @@
+﻿<Properties StartupConfiguration="{C84EFF5E-3713-4F28-88FB-A49AE25D1814}|Default">
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MultiItemStartupConfigurations />
+  <MonoDevelop.Ide.Workbench ActiveDocument="ClientApp/src/components/profil/FetchProfil.js">
+    <Files>
+      <File FileName="appsettings.json" Line="4" Column="32" />
+      <File FileName="Services/Helpers/DbContextExtension.cs" Line="18" Column="1" />
+      <File FileName="ClientApp/src/components/users/UsersList.js" Line="76" Column="12" />
+      <File FileName="ClientApp/src/components/profil/FetchProfil.js" Line="4" Column="128" />
+      <File FileName="ClientApp/src/components/users/UserModel.js" Line="4" Column="1" />
+      <File FileName="ClientApp/src/components/users/UsersAdd.js" Line="29" Column="12" />
+      <File FileName="ClientApp/src/components/users/UsersEdit.js" Line="26" Column="1" />
+      <File FileName="ClientApp/src/components/users/UsersRouter.js" Line="18" Column="3" />
+      <File FileName="ClientApp/src/App.js" Line="27" Column="4" />
+      <File FileName="ClientApp/src/components/NavMenu.js" Line="43" Column="12" />
+      <File FileName="Controllers/UsersController.cs" Line="73" Column="1" />
+      <File FileName="Controllers/profilController.cs" Line="1" Column="14" />
+      <File FileName="ClientApp/src/components/users/UsersService.js" Line="89" Column="38" />
+      <File FileName="Controllers/ConfigController.cs" Line="1" Column="1" />
+      <File FileName="ClientApp/src/components/FetchData.js" Line="55" Column="1" />
+      <File FileName="ClientApp/src/components/api-authorization/Login.js" Line="53" Column="1" />
+      <File FileName="ClientApp/src/components/LanguageSelect.js" Line="23" Column="36" />
+      <File FileName="Models/PageUsersModel.cs" Line="1" Column="1" />
+      <File FileName="Controllers/WeatherForecastController.cs" Line="11" Column="1" />
+      <File FileName="Properties/launchSettings.json" Line="21" Column="54" />
+      <File FileName="Program.cs" Line="120" Column="1" />
+      <File FileName="ClientApp/src/components/api-authorization/Logout.js" Line="1" Column="1" />
+      <File FileName="ClientApp/src/components/Home.js" Line="1" Column="1" />
+      <File FileName="Helpers/ProfileService.cs" Line="48" Column="1" />
+      <File FileName="Helpers/Cultures.cs" Line="1" Column="1" />
+      <File FileName="Helpers/AutomapperProfiles.cs" Line="1" Column="1" />
+      <File FileName="Helpers/SharedResources.cs" Line="1" Column="1" />
+      <File FileName="Models/ApplicationUserRoule.cs" Line="1" Column="1" />
+      <File FileName="Models/PasswordChangeModel.cs" Line="1" Column="1" />
+      <File FileName="Models/UserModel.cs" Line="1" Column="1" />
+      <File FileName="Services/Helpers/RoleHelpers.cs" Line="1" Column="1" />
+      <File FileName="Services/ApplicationDbContext.cs" Line="1" Column="1" />
+      <File FileName="Services/HelperService.cs" Line="1" Column="1" />
+      <File FileName="Services/IHelperService.cs" Line="1" Column="1" />
+      <File FileName="Services/IUserManagementService.cs" Line="1" Column="1" />
+      <File FileName="Services/UserManagementService.cs" Line="206" Column="1" />
+      <File FileName="Entities/ApplicationUser.cs" Line="1" Column="1" />
+      <File FileName="GlobalSuppressions.cs" Line="1" Column="1" />
+      <File FileName="Startup.cs" Line="178" Column="1" />
+      <File FileName="ClientApp/src/components/api-authorization/AuthorizeRoute.js" Line="53" Column="1" />
+      <File FileName="ClientApp/src/components/api-authorization/AuthorizeService.js" Line="41" Column="37" />
+      <File FileName="ClientApp/src/components/api-authorization/LoginMenu.js" Line="49" Column="12" />
+      <File FileName="ClientApp/src/components/users/UsersDelete.js" Line="4" Column="1" />
+      <File FileName="ClientApp/src/components/users/UsersPasswordChange.js" Line="35" Column="1" />
+      <File FileName="ClientApp/src/components/Pager.js" Line="110" Column="2" />
+    </Files>
+    <Pads>
+      <Pad Id="ProjectPad">
+        <State name="__root__">
+          <Node name="ProjectLexicon" expanded="True">
+            <Node name="ProjectLexicon" expanded="True">
+              <Node name="ClientApp" expanded="True">
+                <Node name="src" expanded="True">
+                  <Node name="components" expanded="True">
+                    <Node name="api-authorization" expanded="True" />
+                    <Node name="profil" expanded="True">
+                      <Node name="FetchProfil.js" selected="True" />
+                    </Node>
+                    <Node name="users" expanded="True" />
+                  </Node>
+                </Node>
+              </Node>
+              <Node name="Controllers" expanded="True" />
+              <Node name="Helpers" expanded="True" />
+              <Node name="Models" expanded="True" />
+              <Node name="Properties" expanded="True" />
+            </Node>
+          </Node>
+        </State>
+      </Pad>
+      <Pad Id="MonoDevelop.Debugger.WatchPad">
+        <State />
+      </Pad>
+    </Pads>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore>
+      <Breakpoint file="/Users/bhrozdamsaz/Documents/GitHub/ProjectLexicon/projectLexicon/ClientApp/src/components/users/UsersService.js" relfile="ClientApp/src/components/users/UsersService.js" line="64" column="1" />
+    </BreakpointStore>
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MonoDevelop.Ide.ItemProperties.ProjectLexicon PreferredExecutionTarget="/Applications/Safari.app" />
+</Properties>
