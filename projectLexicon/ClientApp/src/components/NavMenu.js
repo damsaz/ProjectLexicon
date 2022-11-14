@@ -94,24 +94,24 @@ class NavMenuPlain extends Component {
                     {t("Forum")}
                   </NavLink>
                 </NavItem>
-                <NavItem>
-                  <NavLink
-                    tag={Link}
-                    className="text-dark"
-                    to="/forum-category"
-                  >
-                    {t("Categories")}
-                  </NavLink>
-                </NavItem>
-                <NavItem>
-                  <NavLink
-                    tag={Link}
-                    className="text-dark"
-                    to="/tags"
-                  >
-                    {t("Tags")}
-                  </NavLink>
-                </NavItem>
+                {this.state.hasAdminRole && (
+                  <NavItem>
+                    <NavLink
+                      tag={Link}
+                      className="text-dark"
+                      to="/forum-category"
+                    >
+                      {t("Categories")}
+                    </NavLink>
+                  </NavItem>
+                )}
+                {this.state.hasAdminRole && (
+                  <NavItem>
+                    <NavLink tag={Link} className="text-dark" to="/tags">
+                      {t("Tags")}
+                    </NavLink>
+                  </NavItem>
+                )}
                 <NavItem>
                   <NavLink
                     tag={Link}
@@ -120,7 +120,7 @@ class NavMenuPlain extends Component {
                   >
                     {t("Events")}
                   </NavLink>
-                </NavItem>                
+                </NavItem>
                 {/*
                 <NavItem>
                   <NavLink

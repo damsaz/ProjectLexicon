@@ -61,3 +61,21 @@ blockquote {
 .accbody {
   background-color: #e0e0e0;
 }
+
+.greenbadge {
+  background-color: #40ff40;
+  color: black;
+}
+
+.greenbadge:hover {
+  cursor: pointer;
+}
+
+.redbadge:hover {
+  cursor: pointer;
+}
+
+.redbadge {
+  background-color: darkgray;
+}
+
