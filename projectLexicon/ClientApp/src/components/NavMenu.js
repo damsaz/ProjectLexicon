@@ -126,6 +126,25 @@ class NavMenuPlain extends Component {
                   <NavLink
                     tag={Link}
                     className="text-dark"
+                    to="/tags"
+                  >
+                    {t("Tags")}
+                  </NavLink>
+                </NavItem>
+                <NavItem>
+                  <NavLink
+                    tag={Link}
+                    className="text-dark"
+                    to="/community-event-list"
+                  >
+                    {t("EventsAdmin")}
+                  </NavLink>
+                </NavItem>                
+                {/*
+                <NavItem>
+                  <NavLink
+                    tag={Link}
+                    className="text-dark"
                     to="/community-events"
                   >
                     {t("EventsAdmin")}
