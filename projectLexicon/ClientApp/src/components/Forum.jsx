@@ -5,44 +5,43 @@ import { UserRoles } from "./api-authorization/ApiAuthorizationConstants";
 import { apiGet } from "../api/api";
 import { ErrBase } from "./ErrBase";
 import { ForumThread } from "./ForumThread";
+import { ForumThreadNew } from "./ForumThreadNew";
 import { ForumCategoryDetail } from "./ForumCategoryDetail";
 import "./Forum.css";
 
 export function Forum() {
   const [userNameServer, setUserNameServer] = useState("...");
-  const [userRoleLocal, setUserRoleLocal] = useState("...");
   const [userRoleServer, setUserRoleServer] = useState("...");
 
   const [loaded, setLoaded] = useState(false);
   const [items, setItems] = useState(null);
-  const [activeThread, setThread] = useState(null);
-  const [errmsg, setErrmsg] = useState("");
-
-  const [newThreadCategory, setNewThreadCategory] = useState(null);
+  const [activeCategory, setActiveCategory] = useState(null);
+  const [activeThread, setActiveThread] = useState(null);
 
   const [showCategoryPopup, setShowCategoryPopup] = useState(false);
-  const [activeCategory, setActiveCategory] = useState(null);
+  const [newThreadCategory, setNewThreadCategory] = useState(null);
+
+  const [errmsg, setErrmsg] = useState("");
 
   // Load categories
 
   useEffect(() => {
-    async function fetchData() {
+    async function fetchCategories() {
       const params = {};
       let data = await apiGet("forumcategory/List", params);
       if (data.errText) {
         return setErrmsg(data.errText);
       }
-      const newItems = data.result.map((i) => ({
-        ...i,
+      const newItems = data.result.map((item) => ({
+        ...item,
         open: false,
         threadsFetched: false,
         threads: [],
       }));
-      checkIds(newItems);
       setItems(newItems);
       setLoaded(true);
     }
-    fetchData();
+    fetchCategories();
   }, []);
 
   // Show/hide list of threads for category
@@ -70,7 +69,6 @@ export function Forum() {
         item.threads = data.result;
         item.threadsFetched = true;
       }
-      checkIds(newItems);
       setItems(newItems);
     }
     asyncToggleCategory();
@@ -79,11 +77,13 @@ export function Forum() {
   // Show thread & posts in content sections
 
   function showThread(thread) {
-    setThread(thread);
+    setNewThreadCategory(null);
+    setActiveCategory(null);
+    setActiveThread(thread);
   }
 
   function hideThread() {
-    setThread(null);
+    setActiveThread(null);
   }
 
   // Handle Roles
@@ -98,13 +98,6 @@ export function Forum() {
   }, []);
 
   async function checkUserRole() {
-    const isLoggedIn = await authService.isAuthenticated();
-    const isAdmin = await authService.hasRole(UserRoles.Administrator); // Beware, only seems to check for admin
-    if (isLoggedIn) {
-      setUserRoleLocal(isAdmin ? "Admin" : "User");
-    } else {
-      setUserRoleLocal("Guest");
-    }
     let data = await apiGet("forumpost/UserInfo", {});
     if (data.errText) {
       return setErrmsg(data.errText);
@@ -130,18 +123,8 @@ export function Forum() {
     const category = changedItems.find((c) => c.id === thread.forumCategoryId);
     if (category) {
       category.threads.push(thread);
-      window.alert(changedItems.map((x) => x.id).join(","));
-      checkIds(changedItems);
       setItems(changedItems);
-      setThread(thread);
-    }
-  }
-
-  function checkIds(items) {
-    console.log(items.map((x) => x.id).join(","));
-    const missingIdNames = items.filter((x) => !x.id).map((x) => x.name);
-    if (missingIdNames.length) {
-      window.alert(missingIdNames.join(","));
+      setActiveThread(thread);
     }
   }
 
@@ -166,27 +149,24 @@ export function Forum() {
     setShowCategoryPopup(false);
   }
 
-  function handleCategoryAdd(newCategory) {
+  function handleCategoryAdded(newCategory) {
     const newItems = [...items];
     newCategory.threads = [];
     newItems.push(newCategory);
-    checkIds(newItems);
     setItems(newItems);
   }
 
-  function handleCategoryChange(changedCategory) {
+  function handleCategoryChanged(changedCategory) {
     const newItems = [...items];
     const ix = newItems.findIndex((x) => x.id === changedCategory.id);
     if (ix < 0) return setErrmsg("Category not found");
     changedCategory.threads = newItems[ix].threads;
     newItems[ix] = changedCategory;
-    checkIds(newItems);
     setItems(newItems);
   }
 
-  function handleCategoryDelete(id) {
+  function handleCategoryDeleted(id) {
     const newItems = items.filter((x) => x.id !== id);
-    checkIds(newItems);
     setItems(newItems);
   }
 
@@ -199,14 +179,18 @@ export function Forum() {
           <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />
           <Nav vertical navbar>
             <p>
-              {userNameServer}<br />({userRoleServer})
+              {userNameServer}
+              <br />({userRoleServer})
             </p>
 
             {!loaded && <p>Loading...</p>}
 
+            {/*== Category/thread tree ==*/}
+
             {loaded &&
               items.map((category) => (
                 <React.Fragment key={-category.id}>
+                  {/*== Edit-category-name popup ==*/}
                   {showCategoryPopup && activeCategory?.id === category.id && (
                     <div className="popupBase">
                       <div className="popupForm">
@@ -214,13 +198,15 @@ export function Forum() {
                           handleClose={handleCategoryClose}
                           popupId={activeCategory.id}
                           category={activeCategory}
-                          onAdd={handleCategoryAdd}
-                          onChange={handleCategoryChange}
-                          onDelete={handleCategoryDelete}
+                          onAdd={handleCategoryAdded}
+                          onChange={handleCategoryChanged}
+                          onDelete={handleCategoryDeleted}
                         />
                       </div>
                     </div>
                   )}
+
+                  {/*== Category name, if admin with edit button ==*/}
                   <NavItem key={category.id}>
                     {true && (
                       <NavLink
@@ -230,14 +216,21 @@ export function Forum() {
                       >
                         {category.name}
                         {isAdmin && (
-                          <Badge onClick={(e) => showEditCategory(e, category)}>
-                            Edit
-                          </Badge>
+                          <>
+                            {" "}
+                            <Badge
+                              className="clickable"
+                              onClick={(e) => showEditCategory(e, category)}
+                            >
+                              Edit
+                            </Badge>
+                          </>
                         )}
                       </NavLink>
                     )}
                   </NavItem>
 
+                  {/*== List of threads for category ==*/}
                   {category.open &&
                     category.threads.map((thread) => (
                       <NavItem key={`${category.id}-${thread.id}`}>
@@ -247,15 +240,18 @@ export function Forum() {
                       </NavItem>
                     ))}
 
-                  {isAdmin && category.open && (
+                  {/*== 'Add-thread' button ==*/}
+                  {isUser && category.open && (
                     <NavItem key={`${category.id}-new}`}>
                       <NavLink href="#" onClick={() => showNewThread(category)}>
-                        {`+`} <Badge>New Thread</Badge>
+                        {"  "} <Badge className="clickable">New Thread</Badge>
                       </NavLink>
                     </NavItem>
                   )}
                 </React.Fragment>
               ))}
+
+            {/*== If there are no caegories, and not is admin, show text ==*/}
 
             {loaded && !isAdmin && items.length === 0 && (
               <p>
@@ -263,6 +259,8 @@ export function Forum() {
                 to add some categories
               </p>
             )}
+
+            {/*== If is admin show new category button ==*/}
 
             {loaded && isAdmin && (
               <>
@@ -272,9 +270,9 @@ export function Forum() {
                       <ForumCategoryDetail
                         handleClose={handleCategoryClose}
                         popupId={0}
-                        onAdd={handleCategoryAdd}
-                        onChange={handleCategoryChange}
-                        onDelete={handleCategoryDelete}
+                        onAdd={handleCategoryAdded}
+                        onChange={handleCategoryChanged}
+                        onDelete={handleCategoryDeleted}
                         category={{}}
                       />
                     </div>
@@ -282,18 +280,19 @@ export function Forum() {
                 )}
                 <NavItem key={`category-new}`}>
                   <NavLink href="#" onClick={() => showAddCategory()}>
-                        <Badge>Add Category</Badge>
+                    <Badge className="clickable">Add Category</Badge>
                   </NavLink>
                 </NavItem>
               </>
             )}
           </Nav>
         </div>
+
         <div className="col" key="col-2">
-          {!activeThread &&
-            !newThreadCategory &&
-            "Select category and thread in the side bar"}
-          {activeThread && (
+          {!activeThread && !newThreadCategory && (
+            <h4>Select category and thread in the side bar</h4>
+          )}
+          {activeThread && !newThreadCategory && (
             <ForumThread
               className="forumPostsContainer"
               forumThread={activeThread}
@@ -304,11 +303,11 @@ export function Forum() {
             />
           )}
           {newThreadCategory && (
-            <ForumThread
+            <ForumThreadNew
               className="forumPostsContainer"
               forumThread={{ id: 0 }}
               onClose={hideThread}
-              forumCategory={newThreadCategory}
+              forumCategoryId={newThreadCategory.id}
               onNewThread={handleThreadAdd}
               userName={userNameServer}
               isUser={isUser}

@@ -9,6 +9,8 @@ export function Events(props) {
   const [items, setItems] = useState([]);
   const [errmsg, setErrmsg] = useState("");
   const [showNew, setShowNew] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
     async function fetchData() {
@@ -18,6 +20,8 @@ export function Events(props) {
         return setErrmsg(data.errText);
       }
       setItems(data.result);
+      setLoading(false)
+      setLoaded(true)
     }
     fetchData();
   }, []);
@@ -52,7 +56,13 @@ export function Events(props) {
         )}         
         <h1>Events</h1>
         <hr></hr>
-        {items.length == 0 && (
+        {loading && (
+          <h2>Loading...</h2>
+        )}
+        {!loading && !loaded && (
+          <h2>An error occurred while loading the page</h2>
+        )}
+        {loaded && items.length === 0 && (
           <h2>There are no events yet.
             Click "New Event" to add the first event
           </h2>

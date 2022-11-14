@@ -2,6 +2,8 @@ import React, { useState } from "react";
 import { Form, FormGroup, Label, Input, Button } from "reactstrap";
 import { apiPost } from '../api/api'
 import { ErrBase } from './ErrBase'
+import { getUserName } from './StringUtils'
+
 import './Forum.css'
 
 export function ForumPostNew(props) {
@@ -37,7 +39,7 @@ export function ForumPostNew(props) {
     console.log(`text set to ${e.target.value}`)
   }
 
-  const quotedUserName = quotedPost && quotedPost.user.email || "Unknown"
+  const quotedUserName = quotedPost && getUserName(quotedPost.user)
 
   return (
     <>

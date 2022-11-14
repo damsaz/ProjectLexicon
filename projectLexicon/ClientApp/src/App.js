@@ -10,7 +10,10 @@ import { UsersRouter } from './components/users/UsersRouter';
 import AuthorizeRoute from './components/api-authorization/AuthorizeRoute';
 import ApiAuthorizationRoutes from './components/api-authorization/ApiAuthorizationRoutes';
 import { ApplicationPaths } from './components/api-authorization/ApiAuthorizationConstants';
+import { Tags } from './components/Tags';
 import { Forum } from './components/Forum';
+import { EventList } from './components/EventList';
+
 
 import './custom.css'
 
@@ -25,6 +28,8 @@ export default class App extends Component {
 				<Route path='/fetch-data' component={FetchData} />
 				<Route path='/forum' component={Forum} />
 				<Route path='/forum-category' component={ForumCategory} />
+				<Route path='/tags' component={Tags} />
+				<Route path='/community-event-list' component={EventList} />
 				<Route path='/community-events' component={Events} />
 				<AuthorizeRoute path='/users' component={UsersRouter} />
 				<Route path={ApplicationPaths.ApiAuthorizationPrefix} component={ApiAuthorizationRoutes} />

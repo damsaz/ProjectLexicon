@@ -1,18 +1,16 @@
 /* eslint-disable react/prop-types */
 import React, { useState, useEffect } from "react";
 
-import { Container } from "reactstrap";
 import { Form } from "reactstrap";
 import { InputText } from "../components/InputText";
 import { FormButtons } from "../components/FormButtons";
-import authService from './api-authorization/AuthorizeService'
 import { apiPost, apiGet } from '../api/api'
 import "./root.css";
 import { ErrBase } from './ErrBase'
 
 
 export function ForumThreadDetail(props) {
-  const { popupId, handleClose, forumCategoryId } = props
+  const { popupId, handleClose, forumCategoryId, onAdd, onChange, onDelete } = props
   const [orgItem, setOrgItem] = useState({ forumCategoryId: forumCategoryId })
   const [formItem, setFormItem] = useState({});
   const [errmsg, setErrmsg] = useState("");
@@ -38,13 +36,13 @@ export function ForumThreadDetail(props) {
       if (data.errText) {
         return setErrmsg(data.errText);
       }
-      data.result && props.onAdd(data.result)
+      data.result && onAdd(data.result)
     } else {
       const data = await apiPost('forumthread/Update', { id: popupId, name: formItem.name, forumCategoryId: orgItem.forumCategoryId })
       if (data.errText) {
         return setErrmsg(data.errText);
       }
-      data.result && props.onChange(data.result)
+      data.result && onChange(data.result)
     }
     handleClose();
   }
@@ -52,7 +50,7 @@ export function ForumThreadDetail(props) {
   async function handleDelete() {
     // await deleteItem(orgItem.id);
     const result = await apiPost('forumthread/Delete', { id: popupId })
-    result.isSuccess && props.onDelete(popupId);
+    result.isSuccess && onDelete(popupId);
     handleClose();
   }
 

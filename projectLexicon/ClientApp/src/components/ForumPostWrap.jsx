@@ -5,6 +5,7 @@ import { PopupOkCancel } from "./PopupOkCancel";
 import "./Forum.css";
 import { apiPost } from "../api/api";
 import { ErrBase } from "./ErrBase";
+import { getUserName } from './StringUtils'
 
 export function ForumPostWrap(props) {
   const {
@@ -44,9 +45,9 @@ export function ForumPostWrap(props) {
     }
   }
 
-  const userName = (item && item.user && item.user.email) || "Unknown";
+  const userName = (item && item.user && getUserName(item.user)) || "Unknown";
   const quotedUserName =
-    (item && item.quotedPost && item.quotedPost.user.email) || "Unknown";
+    (item && item.quotedPost && getUserName(item.quotedPost.user)) || "Unknown";
 
   function handleDeleteRequest() {
     setShowDeletePopup(true);
@@ -60,7 +61,6 @@ export function ForumPostWrap(props) {
       id: item?.id || 0,
     };
 
-    
     const changedItem = await apiPost("forumpost/Delete", params);
     if (changedItem.errText) {
       return setErrmsg(changedItem.errText);
@@ -70,6 +70,24 @@ export function ForumPostWrap(props) {
     }
   }
 
+  async function handleRecoverRequest() {
+    const params = {
+      id: item?.id || 0,
+    };
+
+    const changedItem = await apiPost("forumpost/Recover", params);
+    if (changedItem.errText) {
+      return setErrmsg(changedItem.errText);
+    }
+    if (changedItem.result) {
+      onChange(changedItem.result);
+    }
+  }
+  function getTagNames() {
+    return item.tags.map((tag) => tag.name);
+  }
+
+  const tagNames = getTagNames();
   return (
     <>
       <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />
@@ -95,7 +113,11 @@ export function ForumPostWrap(props) {
           onOk={handleDeletePopupOk}
         />
       )}
-      <div className="bordered">
+      <div
+        className={
+          item.archivedDate ? "bordered archived-post" : "bordered post"
+        }
+      >
         <p className="small-text">
           Posted {dateStr(item.createdDate)} by {userName}
         </p>
@@ -117,16 +139,34 @@ export function ForumPostWrap(props) {
             )}
           </>
         )}
+        {tagNames && tagNames.length > 0 && (
+          <span>
+            {" "}
+            Tags:
+            {tagNames.map((tagName) => (
+              <>
+                {" "}
+                <Badge>{tagName}</Badge>
+              </>
+            ))}
+          </span>
+        )}
         <hr></hr>
+        {item.archivedDate && <h3>ARCHIVED</h3>}
         <p className={quotedPostClass}>{item.text}</p>
         <hr />
         <div className="buttonBox">
-          {isAdmin && (
+          {isAdmin && !item.archivedDate && (
             <Button className="formButton" onClick={handleDeleteRequest}>
               Delete
             </Button>
           )}
-          {isUser && (
+          {isAdmin && item.archivedDate && (
+            <Button className="formButton" onClick={handleRecoverRequest}>
+              Recover
+            </Button>
+          )}
+          {isUser && !item.archivedDate && (
             <Button className="formButton" onClick={doShowNew}>
               Quote
             </Button>

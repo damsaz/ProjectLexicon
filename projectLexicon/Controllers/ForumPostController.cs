@@ -18,6 +18,8 @@ using ProjectLexicon.Models.ForumThreads;
 using static System.Net.Mime.MediaTypeNames;
 using Duende.IdentityServer.Extensions;
 using System.Security.Claims;
+using System.Security.Cryptography.Xml;
+using Microsoft.CodeAnalysis.VisualBasic.Syntax;
 
 namespace ProjectLexicon.Controllers
 {
@@ -80,6 +82,10 @@ namespace ProjectLexicon.Controllers
                 return new Response<List<ForumPost>>(415, "Tag id's were not in recognized format");
             bool showArchived = UserId.HasRole(User, Role.Admin, Role.Sys);
             List<ForumPost> items = Filter(filter, userId, ForumThreadId, tagIdNumbers, showArchived);
+            foreach(ForumPost item in items)
+            {
+                RemoveForumPostsFromTags(item);
+            }
             return new(items);
         }
 
@@ -101,6 +107,7 @@ namespace ProjectLexicon.Controllers
                 _ => DS.FirstOrDefault(x => x.Id == item.QuotedPostId)
 
             };
+            RemoveForumPostsFromTags(item);
             return new Response<ForumPost>(item);
         }
 
@@ -155,6 +162,8 @@ namespace ProjectLexicon.Controllers
                 0 => null,
                 _ => DS.FirstOrDefault(x => x.Id == item.QuotedPostId)
             };
+            RemoveForumPostsFromTags(item);
+
             return new Response<ForumPost>(item);
         }
 
@@ -221,6 +230,31 @@ namespace ProjectLexicon.Controllers
             item.QuotedText = quotedText;
             Context.SaveChanges();
 
+            RemoveForumPostsFromTags(item);
+            return new Response<ForumPost>(item);
+        }
+
+        // =======================================
+        // === Delete Item 
+        // =======================================
+
+        [HttpPost("Recover")]
+        public Response<ForumPost> PostRecover(int id)
+        {
+            if (!ModelState.IsValid)
+                return new Response<ForumPost>(100, "Invalid input");
+            if (!UserId.HasRole(User, Role.Admin))
+            {
+                return new Response<ForumPost>(101, "No permission");
+            }
+
+            ForumPost? item = DS.FirstOrDefault(item => item.Id == id);
+            if (item == null)
+                return new Response<ForumPost>(404, "Post not found");
+
+            item.ArchivedDate = null;
+            Context.SaveChanges();
+            RemoveForumPostsFromTags(item);
             return new Response<ForumPost>(item);
         }
 
@@ -268,6 +302,7 @@ namespace ProjectLexicon.Controllers
         {
             return DS
                 .Include("QuotedPost")
+                .Include("Tags")
                 .Where(p =>
                 (string.IsNullOrEmpty(filter) || p.Text.Contains(filter))
                 &&
@@ -280,6 +315,17 @@ namespace ProjectLexicon.Controllers
                 (archived || p.ArchivedDate == null)
                 )
                 .ToList();
+        }
+
+        private void RemoveForumPostsFromTags(ForumPost item)
+        {
+            if (item.Tags != null)
+            {
+                foreach (Tag tag in item.Tags)
+                {
+                    tag.ForumPosts.Clear();
+                }
+            }
         }
     }
 }

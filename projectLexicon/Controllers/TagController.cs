@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿#nullable enable
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using ProjectLexicon.Models.Tags;
 using ProjectLexicon.Models.Shared;
@@ -31,9 +32,10 @@ namespace ProjectLexicon.Controllers
         // =======================================
 
         [HttpGet("list")]
-        public Response<List<Tag>> GetList(string filter)
+        public Response<List<Tag>> GetList()
         {
             List<Tag> ret = new();
+            string? filter = null;
             ret.AddRange(string.IsNullOrEmpty(filter) ?
                 DS :
                 DS.Where(p => p.Name.Contains(filter))

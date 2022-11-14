@@ -6,7 +6,7 @@ export function ErrPopup(props) {
   const { errMsg, onClose } = props
 
   return (
-    <div className="errormessage">
+    <div className="">
       <div>{errMsg}</div>
       <div className="buttonBox">
         <Button

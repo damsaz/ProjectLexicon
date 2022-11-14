@@ -5,7 +5,7 @@ import { ErrPopup } from './ErrPopup'
 export function ErrBase(props) {
   const { errmsg, onClose } = props;
   return (
-    <div className="popupBase">
+    <div className="popupBase errormessage">
       {errmsg && (
         <div className="popupForm">
           <ErrPopup errMsg={errmsg} onClose={onClose} />

@@ -1,36 +1,38 @@
 import React, { useState } from "react";
 import { Button, Container, ListGroup, ListGroupItem } from "reactstrap";
 import { ForumPostWrap } from "./ForumPostWrap";
-import { ForumPostNew } from "./ForumPostNew";
 import { apiGet } from "../api/api";
 import { ErrBase } from "./ErrBase";
 import { ForumThreadDetail } from "./ForumThreadDetail";
 import { ForumPostWrapNew } from "./ForumPostWrapNew";
+import "./Forum.css";
 
 export function ForumThread(props) {
-  const {
-    forumCategory,
-    forumThread,
-    onNewThread,
-    onClose,
-    isAdmin,
-    isUser,
-    userName,
-  } = props;
+  const { forumThread, isAdmin, isUser, userName } = props;
+
+  const [loaded, setLoaded] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [activeThread, setActiveThread] = useState({ id: 0 });
-  const [items, setItems] = useState([]);
-  const [errmsg, setErrmsg] = useState("");
-  const [showNew, setShowNew] = useState(false);
-  const [quotedPostId, setQuotedPostId] = useState(0);
   const [showArchived, setShowArchived] = useState(false);
 
-  function setNewThread() {
-    setActiveThread({ id: 0 });
+  const [items, setItems] = useState([]);
+  const [quotedPostId, setQuotedPostId] = useState(0);
+  const [errmsg, setErrmsg] = useState("");
+
+  // === Init
+
+  if (
+    !loading &&
+    (activeThread === null || activeThread.id !== forumThread.id)
+  ) {
+    setLoading(true);
+    setLoaded(false);
     setItems([]);
+    fetchPosts(forumThread);
   }
 
-  async function fetchData(forumThread) {
+  async function fetchPosts(forumThread) {
     const params = {
       filter: "",
       userId: "",
@@ -40,36 +42,24 @@ export function ForumThread(props) {
     };
     let data = await apiGet("forumpost/List", params);
     if (data.errText) {
-      return setErrmsg(data.errText);
+      setErrmsg(data.errText);
+      setLoading(false);
+      return;
     }
     setActiveThread(forumThread);
     setItems(data.result);
+    setLoading(false);
+    setLoaded(true);
   }
 
-  //function prepareItems(fetchedItems) {
-  //  // 1. Flatten / add user name
-  //  const itemsWithName = fetchedItems.map(x => ({ ...x.forumPost, userName: x.userName }))
-  //  // 2. Add quoted post to each item if exists
-  //  // const itemsWithQuotes = itemsWithName.map(item => ({ ...x, quotedPost; items.find(x => x.id === item.quotedPostId) }))
-  //  return itemsWithName;
-  //}
+  // === Handle post added/changed/deleted
 
-  if (activeThread.id !== forumThread.id) {
-    if (forumThread.id === 0) setNewThread();
-    else fetchData(forumThread);
-  }
-
-  function doShowNew() {
-    setShowNew(true);
-  }
-  function doHideNew() {
-    setShowNew(false);
-  }
   function handleNewPostAdded(newPost) {
     const newItems = [...items];
     newItems.push(newPost);
     setItems(newItems);
   }
+
   function handlePostChanged(newPost) {
     const newItems = [...items];
     const ix = newItems.findIndex((i) => i.id === newPost.id);
@@ -78,11 +68,13 @@ export function ForumThread(props) {
     setItems(newItems);
   }
 
-  // https://stackoverflow.com/questions/64931025/how-to-scroll-to-particular-id-in-react-js
+  // === Scroll to quoted post
+
   function scrollToPost(postId) {
     setQuotedPostId(postId);
+    // https://stackoverflow.com/questions/64931025/how-to-scroll-to-particular-id-in-react-js
     const elem = document.getElementById(`post-${postId}`);
-    if (!elem) return setErrmsg("Quoted post not found");
+    if (!elem) return setErrmsg("Quoted post not found. It may have been deleted?");
     window.scrollTo(0, findPosition(elem));
   }
 
@@ -96,107 +88,117 @@ export function ForumThread(props) {
     }
   }
 
-  function nofunction() {}
+  // Handle delete thread
 
-  function handleAddThread(newThread) {
-    setActiveThread(newThread);
-    onNewThread(newThread);
+  /*
+  function handleDeleteRequest() {
+    setShowDeletePopup(true);
   }
+  function handleDeletePopupCancel() {
+    setShowDeletePopup(false);
+  }
+  async function handleDeletePopupOk() {
+    setShowDeletePopup(false);
+    const params = {
+      id: forumThread?.id || 0,
+    };
 
-  const existingTreadLoaded =
-    activeThread.id && activeThread.id === forumThread.id;
-  const existingTreadLoading =
-    activeThread.id && activeThread.id !== forumThread.id;
-
+    const changedItem = await apiPost("forumthread/Delete", params);
+    if (changedItem.errText) {
+      return setErrmsg(changedItem.errText);
+    }
+    if (changedItem.result) {
+      onChange(changedItem.result);
+    }
+  }
+*/
   return (
     <>
       <Container>
         <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />
-        {/*<Button onClick={onClose}>Show threads</Button>*/}
+
+        {/*=== Header ===*/}
+
         <div>
-          <h1>{forumThread ? forumThread.name : "New Thread"}</h1>
-          {isAdmin && !showArchived && (
-            <Button onClick={() => setShowArchived(true)}>Show Archived</Button>
-          )}
-          {isAdmin && showArchived && (
-            <Button onClick={() => setShowArchived(false)}>
-              Hide Archived
-            </Button>
+          <h1>{forumThread ? forumThread.name : "..."}</h1>
+          {isAdmin && (
+            <div className="buttonBox">
+              {!showArchived && (
+                <Button onClick={() => setShowArchived(true)}>
+                  Show Archived
+                </Button>
+              )}
+              {showArchived && (
+                <Button onClick={() => setShowArchived(false)}>
+                  Hide Archived
+                </Button>
+              )}
+              {/*
+                <Button onClick={() => setShowArchived(false)}>
+                  Hide Archived
+                </Button>
+              */}
+            </div>
           )}
         </div>
         <hr></hr>
-        {activeThread.id !== forumThread.id && <h2>Loading...</h2>}
 
-        {!activeThread.id && forumCategory && (
-          <ForumThreadDetail
-            onAdd={handleAddThread}
-            onChange={nofunction}
-            onDelete={nofunction}
-            handleClose={nofunction}
-            popupId={0}
-            thread={activeThread}
-            forumCategoryId={forumCategory.id}
-          />
+        {!loaded && loading && <h2>Loading...</h2>}
+        {!loaded && !loading && <h2>An error occurred loading the page</h2>}
+
+        {/*=== Empty thread, set message for guest (that can't add new post) ===*/}
+
+        {loaded && !isUser && items.length === 0 && (
+          <h2>There are no posts yet in this thread.</h2>
         )}
-        {false && existingTreadLoaded && items.length === 0 && (
-          <h2>
-            This thread is still empty. Click "New Post" to add the first post
-            to this thread
-          </h2>
-        )}
-        {existingTreadLoaded && (
+
+        {/*=== List of posts ===*/}
+
+        {loaded && (
           <>
             <ListGroup>
               <>
+                {/* == Posts from database == */}
                 {items
-                  .filter((i) => showArchived || i.archivedDate === null)
+                  .filter((item) => showArchived || item.archivedDate === null)
                   .map((item) => (
                     <ListGroupItem
                       id={`post-${item.id}`}
                       key={`post-${item.id}`}
                     >
-                      <ForumPostWrap
-                        item={item}
-                        forumThread={forumThread}
-                        onAdd={handleNewPostAdded}
-                        onChange={handlePostChanged}
-                        onFindPost={scrollToPost}
-                        isQuotedPost={item.id === quotedPostId}
-                        isUser={isUser}
-                        isAdmin={isAdmin}
-                      />
+                      <div className="grayish">
+                        <ForumPostWrap key={`post2-${item.id}`}
+                          item={item}
+                          forumThread={forumThread}
+                          onAdd={handleNewPostAdded}
+                          onChange={handlePostChanged}
+                          onFindPost={scrollToPost}
+                          isQuotedPost={item.id === quotedPostId}
+                          isUser={isUser}
+                          isAdmin={isAdmin}
+                        />
+                      </div>
                     </ListGroupItem>
                   ))}
+
+                {/* == Add new post (no quote) == */}
                 {isUser && (
-                  <ForumPostWrapNew
-                    forumThread={forumThread}
-                    onAdd={handleNewPostAdded}
-                    isUser={isUser}
-                    quotedPost={null}
-                    quotedText={""}
-                  />
+                  <ListGroupItem
+                    id={`post-add`}
+                    key={`post-add`}
+                    className="grayish"
+                  >
+                    <ForumPostWrapNew
+                      forumThread={forumThread}
+                      onAdd={handleNewPostAdded}
+                      isUser={isUser}
+                      quotedPost={null}
+                      quotedText={""}
+                    />
+                  </ListGroupItem>
                 )}
               </>
             </ListGroup>
-            <hr></hr>
-            <div className="bottonBox">
-              {showNew && (
-                <div className="popupBase">
-                  <div className="popupForm">
-                    <ForumPostNew
-                      forumThread={forumThread}
-                      quotedPost={null}
-                      quotedText=""
-                      onAdd={handleNewPostAdded}
-                      isUser={isUser}
-                      isAdmin={isAdmin}
-                      quotedDate={""}
-                    />
-                  </div>
-                </div>
-              )}
-              {false && isUser && <Button onClick={doShowNew}>New Post</Button>}
-            </div>
           </>
         )}
       </Container>
