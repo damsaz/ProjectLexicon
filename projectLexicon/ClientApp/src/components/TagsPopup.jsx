@@ -1,4 +1,4 @@
-import React, { useState,useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Form,
   FormGroup,
@@ -9,10 +9,11 @@ import {
   ModalBody,
   ModalFooter,
   Button,
-  NavItem,
+  Badge,
 } from "reactstrap";
-import {apiGet } from "../api/api";
-
+import { apiGet } from "../api/api";
+import { ErrBase } from "./ErrBase";
+import "./Forum.css";
 
 export function TagsPopup(props) {
   const { tagIds, onChange, onClose } = props;
@@ -52,6 +53,7 @@ export function TagsPopup(props) {
     <Modal isOpen={true}>
       <ModalHeader>Set tags for post</ModalHeader>
       <ModalBody>
+        <ErrBase errmsg={errmsg} onClose={() => setErrmsg("")} />
         {loading && <h3>Loading...</h3>}
         {!loading && !loaded && <h3>Could not load active tags</h3>}
         {loaded && tags.length === 0 && <h3>There are no tags available</h3>}
@@ -59,12 +61,24 @@ export function TagsPopup(props) {
           <Form>
             {tags.map((tag) => (
               <FormGroup check inline key={`tag-${tag.id}`}>
+                <span>
+                  <Badge
+                    onClick={() => handleChange(tag.id)}
+                    className={
+                      tagIds.includes(tag.id) ? "greenbadge" : "redbadge"
+                    }
+                  >
+                    {tag.name}
+                  </Badge>
+                </span>
+                {/*
                 <Input
                   type="checkbox"
                   checked={tagIds.includes(tag.id)}
                   onChange={() => handleChange(tag.id)}
                 />
                 <Label check>{tag.name}</Label>
+            */}
               </FormGroup>
             ))}{" "}
           </Form>
