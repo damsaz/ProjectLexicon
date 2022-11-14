@@ -58,10 +58,23 @@ class NavMenuPlain extends Component {
 								<NavItem>
 									<NavLink tag={Link} className="text-dark" to="/fetch-data">{t('Fetch data')}</NavLink>
 								</NavItem>
+<<<<<<< Updated upstream
 										<NavItem>
 									<NavLink tag={Link} className="text-dark" to="/fetchprofil/1">{t('Profil')}</NavLink>
 ´
 								</NavItem>{
+=======
+								<NavItem>
+									<NavLink tag={Link} className="text-dark" to="/chat">{t('Chat')}</NavLink>
+								</NavItem>
+								<NavItem>
+									<NavLink tag={Link} className="text-dark" to="/profil">{t('Profil')}</NavLink>
+								</NavItem>
+								<NavItem>
+									<NavLink tag={Link} className="text-dark" to="/forum-category">{t('Categories')}</NavLink>
+								</NavItem>
+								{
+>>>>>>> Stashed changes
 									this.state.hasAdminRole &&
 									<NavItem>
 										<NavLink tag={Link} className="text-dark" to="/users">{t('Users')}</NavLink>

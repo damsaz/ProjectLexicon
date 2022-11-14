@@ -86,6 +86,7 @@ export class UsersService {
 		const token = await authService.getAccessToken();
 
 		try {
+<<<<<<< Updated upstream
 			const response = await fetch('api/profil/' + userId, {
 				headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
 			});
@@ -103,7 +104,46 @@ export class UsersService {
 			throw error;
 		}
 	}
+=======
+			const response = await fetch('api/profil/', {
+				headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+			});
+>>>>>>> Stashed changes
 
+			if (response.ok) {
+				const jsonData = await response.json();
+				return jsonData;
+			}
+			else {
+				throw new Error("HTTP error! Code: " + response.status);
+			}
+		}
+		catch (error) {
+			console.log(error);
+			throw error;
+		}
+	}
+	async getUserChat() {
+		const token = await authService.getAccessToken();
+
+		try {
+			const response = await fetch('api/Messages/GetUser/', {
+				headers: !token ? {} : { 'Authorization': `Bearer ${token}` }
+			});
+
+			if (response.ok) {
+				const jsonData = await response.json();
+				return jsonData;
+			}
+			else {
+				throw new Error("HTTP error! Code: " + response.status);
+			}
+		}
+		catch (error) {
+			console.log(error);
+			throw error;
+		}
+	}
 	async addUser(user) {
 		const token = await authService.getAccessToken();
 
